@@ -463,14 +463,19 @@
       box-shadow: 0 18px 40px rgba(217,127,140,0.3);
     }
 
-    .btn.ghost {
+    .btn-secondary {
       background: rgba(255,255,255,0.85);
       color: var(--ink);
       border: 1px solid var(--border);
       box-shadow: none;
     }
 
-    .btn-secondary, .btn.ghost:hover {
+    .btn-secondary:hover {
+      background: rgba(217,127,140,0.1);
+      border-color: var(--primary);
+    }
+
+    .btn.ghost {
       background: rgba(255,255,255,0.85);
       color: var(--ink);
       border: 1px solid var(--border);
