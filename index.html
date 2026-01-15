@@ -29,8 +29,1465 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #8B5CF6;
+      --secondary: #10B981;
+      --violet: #A78BFA;
+      --olive: #84CC16;
+      --bg-light: #FBFAFB;
+      --bg-dark: #111827;
+      --card-light: #FFFFFF;
+      --card-dark: #1F2937;
+      --text-light: #1F2937;
+      --text-dark: #F9FAFB;
+      --border-light: #E5E7EB;
+      --border-dark: #374151;
+      --success: #10B981;
+      --error: #EF4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-light);
+      transition: background-color 0.3s ease;
+    }
+
+    html[data-theme="dark"] body {
+      color: var(--text-dark);
+    }
+
+    /* Layout */
+    .container {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    @media (max-width: 1200px) {
+      .container {
+        grid-template-columns: 260px 1fr;
+      }
+      .right-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+      .sidebar.mobile-open {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        width: 260px;
+      }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--card-light);
+      border-right: 1px solid var(--border-light);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    html[data-theme="dark"] .sidebar {
+      background: var(--card-dark);
+      border-right-color: var(--border-dark);
+    }
+
+    .logo {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .nav-item:hover {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .nav-item i {
+      font-size: 1.25rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .topbar h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    html[data-theme="dark"] .card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    /* Training Modes */
+    .modes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .mode {
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    html[data-theme="dark"] .mode {
+      border-color: var(--border-dark);
+    }
+
+    .mode:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+      border-color: var(--primary);
+    }
+
+    .mode.active {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.05);
+    }
+
+    .mode .ico {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .mode.primary .ico {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+    }
+
+    .mode.violet .ico {
+      background: rgba(167, 139, 250, 0.1);
+      color: var(--violet);
+    }
+
+    .mode.secondary .ico {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--secondary);
+    }
+
+    .mode.olive .ico {
+      background: rgba(132, 204, 22, 0.1);
+      color: var(--olive);
+    }
+
+    .mode h3 {
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    /* Form */
+    .form .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    .sel, select, input {
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      background: var(--bg-light);
+      color: var(--text-light);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+    }
+
+    html[data-theme="dark"] .sel,
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] input {
+      background: var(--bg-dark);
+      border-color: var(--border-dark);
+      color: var(--text-dark);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #7C3AED;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Question Box */
+    .qbox {
+      margin-top: 2rem;
+    }
+
+    .qmeta {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--primary);
+    }
+
+    .stem {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(139, 92, 246, 0.05);
+      border-radius: 8px;
+    }
+
+    .opts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .opt {
+      padding: 1rem;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    html[data-theme="dark"] .opt {
+      border-color: var(--border-dark);
+    }
+
+    .opt:hover {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.05);
+    }
+
+    .opt.selected {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .opt.correct {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .opt.incorrect {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .opt-label {
+      font-weight: 700;
+      min-width: 24px;
+    }
+
+    /* Feedback */
+    .feedback {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+    }
+
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+    }
+
+    .feedback h3 {
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feedback.correct h3 {
+      color: var(--success);
+    }
+
+    .feedback.incorrect h3 {
+      color: var(--error);
+    }
+
+    /* Score */
+    .score {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .score-item.correct {
+      color: var(--success);
+    }
+
+    .score-item.incorrect {
+      color: var(--error);
+    }
+
+    /* Exam */
+    .exam-intro {
+      text-align: center;
+      max-width: 600px;
+      margin: 3rem auto;
+    }
+
+    .exam-intro .icon {
+      font-size: 5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .exam-intro h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .exam-intro .description {
+      font-size: 1.125rem;
+      color: #6B7280;
+      margin-bottom: 2rem;
+    }
+
+    .exam-instructions {
+      text-align: left;
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    html[data-theme="dark"] .exam-instructions {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .exam-instructions h3 {
+      margin-top: 0;
+    }
+
+    .exam-instructions ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .exam-instructions li {
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+
+    /* Progress Bar */
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: var(--border-light);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    html[data-theme="dark"] .progress {
+      background: var(--border-dark);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    /* Timer */
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .timer.warning {
+      color: var(--error);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Navigation */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-buttons .btn {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* Results */
+    .results {
+      text-align: center;
+      max-width: 600px;
+      margin: 3rem auto;
+    }
+
+    .results .percentage {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 2rem 0;
+    }
+
+    .results .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .stat-card {
+      background: var(--card-light);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    html[data-theme="dark"] .stat-card {
+      background: var(--card-dark);
+      border-color: var(--border-dark);
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card.correct .value {
+      color: var(--success);
+    }
+
+    .stat-card.incorrect .value {
+      color: var(--error);
+    }
+
+    .stat-card .label {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    /* Right Panel */
+    .right-panel {
+      background: var(--card-light);
+      border-left: 1px solid var(--border-light);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    html[data-theme="dark"] .right-panel {
+      background: var(--card-dark);
+      border-left-color: var(--border-dark);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+
+    html[data-theme="dark"] .theme-toggle {
+      border-color: var(--border-dark);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      background: rgba(139, 92, 246, 0.05);
+    }
+
+    .stats-grid {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+      background: var(--bg-light);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    html[data-theme="dark"] .stat-item {
+      background: var(--bg-dark);
+    }
+
+    .stat-item h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #6B7280;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .stat-item .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .chart-container {
+      margin-top: 1.5rem;
+    }
+
+    .chart-container h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Utilities */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mb-0 {
+      margin-bottom: 0;
+    }
+
+    .mt-2 {
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Full HTML content with Practice and Exam mockup views -->
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">entrENARMe</div>
+      <nav>
+        <a class="nav-item" onclick="showView('dashboard')">
+          <i class="ph ph-house"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item active" onclick="showView('practice')">
+          <i class="ph ph-brain"></i>
+          <span>Entrenar</span>
+        </a>
+        <a class="nav-item" onclick="showView('exam')">
+          <i class="ph ph-exam"></i>
+          <span>Simulacro</span>
+        </a>
+        <a class="nav-item" onclick="showView('progress')">
+          <i class="ph ph-chart-line"></i>
+          <span>Progreso</span>
+        </a>
+        <a class="nav-item" onclick="showView('settings')">
+          <i class="ph ph-gear"></i>
+          <span>Configuración</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Practice View -->
+      <div id="practice-view">
+        <div class="topbar">
+          <h1>Entrenar</h1>
+          <div class="pills">
+            <span class="pill" id="current-system">Sistema: Mixto</span>
+            <span class="pill" id="current-difficulty">Dificultad: Media</span>
+          </div>
+        </div>
+
+        <!-- Training Modes -->
+        <div class="card" id="modes-card">
+          <h2>Modos de entrenamiento</h2>
+          <div class="modes">
+            <div class="mode primary" onclick="selectMode('quick')">
+              <div class="ico">
+                <i class="ph ph-lightning"></i>
+              </div>
+              <h3>Práctica rápida</h3>
+            </div>
+            <div class="mode violet" onclick="selectMode('images')">
+              <div class="ico">
+                <i class="ph ph-image"></i>
+              </div>
+              <h3>Casos con imagen</h3>
+            </div>
+            <div class="mode secondary" onclick="selectMode('clinical')">
+              <div class="ico">
+                <i class="ph ph-stethoscope"></i>
+              </div>
+              <h3>Razonamiento clínico</h3>
+            </div>
+            <div class="mode olive" onclick="selectMode('highyield')">
+              <div class="ico">
+                <i class="ph ph-book-open-text"></i>
+              </div>
+              <h3>High-Yield</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Training Config -->
+        <div class="card" id="config-card">
+          <h2>Configurar set</h2>
+          <div class="form">
+            <div class="row">
+              <div class="form-group">
+                <label>Sistema</label>
+                <select id="system-select" class="sel">
+                  <option value="mixto">Mixto</option>
+                  <option value="cardio">Cardio</option>
+                  <option value="respiratorio">Respiratorio</option>
+                  <option value="endocrino">Endocrino</option>
+                  <option value="urgencias">Urgencias</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Dificultad</label>
+                <select id="difficulty-select" class="sel">
+                  <option value="facil">Fácil</option>
+                  <option value="media" selected>Media</option>
+                  <option value="dificil">Difícil</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Cantidad de preguntas</label>
+                <select id="quantity-select" class="sel">
+                  <option value="3">3 preguntas</option>
+                  <option value="5" selected>5 preguntas</option>
+                  <option value="8">8 preguntas</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-actions">
+              <button class="btn btn-primary" onclick="startPractice()">Iniciar set</button>
+              <button class="btn btn-secondary" onclick="clearConfig()">Limpiar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question View -->
+        <div id="question-view" class="hidden">
+          <div class="score">
+            <div class="score-item correct">
+              <i class="ph ph-check-circle"></i>
+              <span id="correct-count">0</span>
+            </div>
+            <div class="score-item incorrect">
+              <i class="ph ph-x-circle"></i>
+              <span id="incorrect-count">0</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="qbox">
+              <div class="qmeta">
+                <span class="tag" id="q-category"></span>
+                <span class="tag" id="q-topic"></span>
+                <span class="tag" id="q-difficulty"></span>
+              </div>
+              <div class="stem" id="q-stem"></div>
+              <div class="opts" id="q-options"></div>
+              <div id="feedback" class="hidden"></div>
+            </div>
+          </div>
+
+          <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="endPractice()">Terminar</button>
+            <button class="btn btn-primary hidden" id="next-btn" onclick="nextQuestion()">Siguiente</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exam View -->
+      <div id="exam-view" class="hidden">
+        <!-- Exam Intro -->
+        <div id="exam-intro">
+          <div class="exam-intro">
+            <div class="icon">
+              <i class="ph ph-exam"></i>
+            </div>
+            <h1>Simulacro ENARM</h1>
+            <p class="description">5 preguntas • 12 minutos</p>
+            
+            <div class="exam-instructions">
+              <h3>Instrucciones</h3>
+              <ul>
+                <li>Este simulacro consta de 5 preguntas de opción múltiple</li>
+                <li>Tienes 12 minutos para completarlo</li>
+                <li>Puedes navegar entre preguntas usando los botones Atrás/Siguiente</li>
+                <li>Selecciona la respuesta correcta para cada pregunta</li>
+                <li>Al finalizar o cuando el tiempo se agote, verás tus resultados</li>
+              </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="startExam()">Comenzar Simulacro</button>
+          </div>
+        </div>
+
+        <!-- Exam In Progress -->
+        <div id="exam-progress" class="hidden">
+          <div class="topbar">
+            <h1>Simulacro ENARM</h1>
+            <div class="timer" id="exam-timer">
+              <i class="ph ph-clock"></i>
+              <span id="time-remaining">12:00</span>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progress-bar" id="exam-progress-bar"></div>
+          </div>
+
+          <div class="card">
+            <div class="qbox">
+              <div class="qmeta">
+                <span class="tag">Pregunta <span id="exam-q-number">1</span> de 5</span>
+              </div>
+              <div class="stem" id="exam-q-stem"></div>
+              <div class="opts" id="exam-q-options"></div>
+            </div>
+          </div>
+
+          <div class="nav-buttons">
+            <button class="btn btn-secondary" id="exam-back-btn" onclick="examPrevQuestion()">Atrás</button>
+            <button class="btn btn-secondary" onclick="endExam()">Terminar</button>
+            <button class="btn btn-primary" id="exam-next-btn" onclick="examNextQuestion()">Siguiente</button>
+          </div>
+        </div>
+
+        <!-- Exam Results -->
+        <div id="exam-results" class="hidden">
+          <div class="results">
+            <h1>¡Simulacro completado!</h1>
+            <div class="percentage" id="exam-percentage">80%</div>
+            
+            <div class="stats">
+              <div class="stat-card correct">
+                <div class="value" id="exam-correct">4</div>
+                <div class="label">Aciertos</div>
+              </div>
+              <div class="stat-card incorrect">
+                <div class="value" id="exam-incorrect">1</div>
+                <div class="label">Errores</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="repeatExam()">Repetir simulacro</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Placeholder views -->
+      <div id="dashboard-view" class="hidden">
+        <div class="topbar">
+          <h1>Dashboard</h1>
+        </div>
+        <div class="card">
+          <h2>Bienvenido a entrENARMe</h2>
+          <p>Selecciona una opción del menú para comenzar.</p>
+        </div>
+      </div>
+
+      <div id="progress-view" class="hidden">
+        <div class="topbar">
+          <h1>Progreso</h1>
+        </div>
+        <div class="card">
+          <h2>Tu progreso</h2>
+          <p>Vista en construcción.</p>
+        </div>
+      </div>
+
+      <div id="settings-view" class="hidden">
+        <div class="topbar">
+          <h1>Configuración</h1>
+        </div>
+        <div class="card">
+          <h2>Ajustes</h2>
+          <p>Vista en construcción.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="ph ph-moon" id="theme-icon"></i>
+        <span id="theme-text">Modo oscuro</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <h4>Racha actual</h4>
+          <div class="value">7 días</div>
+        </div>
+        <div class="stat-item">
+          <h4>Preguntas resueltas</h4>
+          <div class="value">142</div>
+        </div>
+        <div class="stat-item">
+          <h4>Precisión</h4>
+          <div class="value">78%</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Rendimiento semanal</h3>
+        <canvas id="performance-chart"></canvas>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Mock questions data
+    const mockQuestions = [
+      {
+        id: 1,
+        stem: 'Paciente masculino de 55 años con dolor torácico opresivo de 2 horas de evolución, irradiado a brazo izquierdo, diaforesis y náusea. ECG muestra elevación del ST en V1-V4. ¿Cuál es el diagnóstico más probable?',
+        options: ['Angina estable', 'IAMCEST anterior', 'Pericarditis aguda', 'Disección aórtica'],
+        correctAnswer: 1,
+        category: 'Cardio',
+        topic: 'SCA',
+        difficulty: 'Media',
+        explanation: 'La elevación del ST en V1-V4 con clínica típica de síndrome coronario indica IAMCEST de cara anterior. Requiere reperfusión urgente.'
+      },
+      {
+        id: 2,
+        stem: '¿Cuál es el tratamiento de primera línea para la hipertensión arterial sistémica en un paciente joven sin comorbilidades?',
+        options: ['IECA o ARA II', 'Betabloqueador', 'Diurético tiazídico', 'Calcioantagonista'],
+        correctAnswer: 0,
+        category: 'Cardio',
+        topic: 'HTA',
+        difficulty: 'Media',
+        explanation: 'Los IECA o ARA II son primera línea en pacientes jóvenes por su perfil metabólico favorable y nefroprotección.'
+      },
+      {
+        id: 3,
+        stem: '¿Cuál es el signo más específico de apendicitis aguda?',
+        options: ['Dolor en fosa ilíaca derecha', 'Signo de McBurney', 'Signo de Blumberg', 'Leucocitosis'],
+        correctAnswer: 2,
+        category: 'Cirugía',
+        topic: 'Abdomen agudo',
+        difficulty: 'Media',
+        explanation: 'El signo de Blumberg (rebote) indica irritación peritoneal y es más específico que la simple localización del dolor.'
+      },
+      {
+        id: 4,
+        stem: '¿Cuál es la causa más común de neumonía adquirida en la comunidad?',
+        options: ['Haemophilus influenzae', 'Streptococcus pneumoniae', 'Mycoplasma pneumoniae', 'Staphylococcus aureus'],
+        correctAnswer: 1,
+        category: 'Neumología',
+        topic: 'Infecciones',
+        difficulty: 'Fácil',
+        explanation: 'S. pneumoniae es el agente más frecuente de NAC en adultos, seguido de H. influenzae y atípicos.'
+      },
+      {
+        id: 5,
+        stem: '¿Cuál es el antibiótico de elección para faringoamigdalitis estreptocócica?',
+        options: ['Penicilina V', 'Amoxicilina', 'Azitromicina', 'Cefalexina'],
+        correctAnswer: 0,
+        category: 'Infectología',
+        topic: 'ATB',
+        difficulty: 'Fácil',
+        explanation: 'Penicilina V oral sigue siendo el gold standard por su eficacia, espectro reducido y bajo costo.'
+      }
+    ];
+
+    // Global state for practice
+    let practiceState = {
+      showTraining: false,
+      currentQuestionIndex: 0,
+      selectedMode: null,
+      correctCount: 0,
+      incorrectCount: 0,
+      selectedAnswer: null,
+      answered: false,
+      questions: []
+    };
+
+    // Global state for exam
+    let examState = {
+      examStarted: false,
+      showResult: false,
+      currentQuestionIndex: 0,
+      timeRemaining: 720, // 12 minutes in seconds
+      timerInterval: null,
+      answers: [],
+      questions: []
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      initChart();
+      updateThemeIcon();
+    });
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const theme = document.documentElement.getAttribute('data-theme');
+      const icon = document.getElementById('theme-icon');
+      const text = document.getElementById('theme-text');
+      if (theme === 'dark') {
+        icon.className = 'ph ph-sun';
+        text.textContent = 'Modo claro';
+      } else {
+        icon.className = 'ph ph-moon';
+        text.textContent = 'Modo oscuro';
+      }
+    }
+
+    // View navigation
+    function showView(view) {
+      const views = ['practice', 'exam', 'dashboard', 'progress', 'settings'];
+      views.forEach(v => {
+        const el = document.getElementById(v + '-view');
+        if (el) el.classList.add('hidden');
+      });
+      
+      const selectedView = document.getElementById(view + '-view');
+      if (selectedView) selectedView.classList.remove('hidden');
+
+      // Update active nav item
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event?.target?.closest('.nav-item')?.classList.add('active');
+    }
+
+    // Practice mode
+    function selectMode(mode) {
+      practiceState.selectedMode = mode;
+      document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
+      event.target.closest('.mode').classList.add('active');
+    }
+
+    function clearConfig() {
+      document.getElementById('system-select').value = 'mixto';
+      document.getElementById('difficulty-select').value = 'media';
+      document.getElementById('quantity-select').value = '5';
+      practiceState.selectedMode = null;
+      document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
+    }
+
+    function startPractice() {
+      const quantity = parseInt(document.getElementById('quantity-select').value);
+      const system = document.getElementById('system-select').value;
+      const difficulty = document.getElementById('difficulty-select').value;
+      
+      // Update pills
+      document.getElementById('current-system').textContent = 'Sistema: ' + system.charAt(0).toUpperCase() + system.slice(1);
+      document.getElementById('current-difficulty').textContent = 'Dificultad: ' + difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+      // Reset state
+      practiceState = {
+        showTraining: true,
+        currentQuestionIndex: 0,
+        selectedMode: practiceState.selectedMode,
+        correctCount: 0,
+        incorrectCount: 0,
+        selectedAnswer: null,
+        answered: false,
+        questions: mockQuestions.slice(0, quantity)
+      };
+
+      // Show question view
+      document.getElementById('modes-card').classList.add('hidden');
+      document.getElementById('config-card').classList.add('hidden');
+      document.getElementById('question-view').classList.remove('hidden');
+      
+      displayQuestion();
+    }
+
+    function displayQuestion() {
+      const question = practiceState.questions[practiceState.currentQuestionIndex];
+      
+      // Update score
+      document.getElementById('correct-count').textContent = practiceState.correctCount;
+      document.getElementById('incorrect-count').textContent = practiceState.incorrectCount;
+
+      // Update question metadata
+      document.getElementById('q-category').textContent = question.category;
+      document.getElementById('q-topic').textContent = question.topic;
+      document.getElementById('q-difficulty').textContent = question.difficulty;
+      
+      // Update stem
+      document.getElementById('q-stem').textContent = question.stem;
+      
+      // Update options
+      const optionsContainer = document.getElementById('q-options');
+      optionsContainer.innerHTML = '';
+      
+      question.options.forEach((option, index) => {
+        const optDiv = document.createElement('div');
+        optDiv.className = 'opt';
+        optDiv.innerHTML = `
+          <span class="opt-label">${String.fromCharCode(65 + index)}.</span>
+          <span>${option}</span>
+        `;
+        optDiv.onclick = () => selectAnswer(index);
+        optionsContainer.appendChild(optDiv);
+      });
+
+      // Hide feedback and next button
+      document.getElementById('feedback').classList.add('hidden');
+      document.getElementById('next-btn').classList.add('hidden');
+      practiceState.answered = false;
+      practiceState.selectedAnswer = null;
+    }
+
+    function selectAnswer(index) {
+      if (practiceState.answered) return;
+
+      practiceState.selectedAnswer = index;
+      practiceState.answered = true;
+
+      const question = practiceState.questions[practiceState.currentQuestionIndex];
+      const isCorrect = index === question.correctAnswer;
+      
+      // Update score
+      if (isCorrect) {
+        practiceState.correctCount++;
+      } else {
+        practiceState.incorrectCount++;
+      }
+
+      // Update UI
+      const opts = document.querySelectorAll('.opt');
+      opts.forEach((opt, i) => {
+        if (i === question.correctAnswer) {
+          opt.classList.add('correct');
+        } else if (i === index && !isCorrect) {
+          opt.classList.add('incorrect');
+        }
+        opt.style.cursor = 'default';
+      });
+
+      // Show feedback
+      const feedback = document.getElementById('feedback');
+      feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+      feedback.innerHTML = `
+        <h3>
+          <i class="ph ${isCorrect ? 'ph-check-circle' : 'ph-x-circle'}"></i>
+          ${isCorrect ? '¡Correcto!' : 'Incorrecto'}
+        </h3>
+        <p>${question.explanation}</p>
+      `;
+      feedback.classList.remove('hidden');
+
+      // Show next button
+      document.getElementById('next-btn').classList.remove('hidden');
+      
+      // Update score display
+      document.getElementById('correct-count').textContent = practiceState.correctCount;
+      document.getElementById('incorrect-count').textContent = practiceState.incorrectCount;
+    }
+
+    function nextQuestion() {
+      practiceState.currentQuestionIndex++;
+      
+      if (practiceState.currentQuestionIndex >= practiceState.questions.length) {
+        // End practice
+        endPractice();
+      } else {
+        displayQuestion();
+      }
+    }
+
+    function endPractice() {
+      alert(`Set completado!\n\nAciertos: ${practiceState.correctCount}\nErrores: ${practiceState.incorrectCount}\nPrecisión: ${Math.round((practiceState.correctCount / practiceState.questions.length) * 100)}%`);
+      
+      // Reset view
+      document.getElementById('modes-card').classList.remove('hidden');
+      document.getElementById('config-card').classList.remove('hidden');
+      document.getElementById('question-view').classList.add('hidden');
+    }
+
+    // Exam mode
+    function startExam() {
+      examState = {
+        examStarted: true,
+        showResult: false,
+        currentQuestionIndex: 0,
+        timeRemaining: 720,
+        timerInterval: null,
+        answers: new Array(5).fill(null),
+        questions: mockQuestions.slice(0, 5)
+      };
+
+      document.getElementById('exam-intro').classList.add('hidden');
+      document.getElementById('exam-progress').classList.remove('hidden');
+
+      startTimer();
+      displayExamQuestion();
+    }
+
+    function startTimer() {
+      examState.timerInterval = setInterval(() => {
+        examState.timeRemaining--;
+        updateTimer();
+
+        if (examState.timeRemaining <= 0) {
+          clearInterval(examState.timerInterval);
+          finishExam();
+        }
+      }, 1000);
+    }
+
+    function updateTimer() {
+      const minutes = Math.floor(examState.timeRemaining / 60);
+      const seconds = examState.timeRemaining % 60;
+      const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      document.getElementById('time-remaining').textContent = timeString;
+
+      const timer = document.getElementById('exam-timer');
+      if (examState.timeRemaining <= 60) {
+        timer.classList.add('warning');
+      } else {
+        timer.classList.remove('warning');
+      }
+    }
+
+    function displayExamQuestion() {
+      const question = examState.questions[examState.currentQuestionIndex];
+      
+      // Update progress
+      const progress = ((examState.currentQuestionIndex + 1) / examState.questions.length) * 100;
+      document.getElementById('exam-progress-bar').style.width = progress + '%';
+      
+      // Update question number
+      document.getElementById('exam-q-number').textContent = examState.currentQuestionIndex + 1;
+      
+      // Update stem
+      document.getElementById('exam-q-stem').textContent = question.stem;
+      
+      // Update options
+      const optionsContainer = document.getElementById('exam-q-options');
+      optionsContainer.innerHTML = '';
+      
+      question.options.forEach((option, index) => {
+        const optDiv = document.createElement('div');
+        optDiv.className = 'opt';
+        if (examState.answers[examState.currentQuestionIndex] === index) {
+          optDiv.classList.add('selected');
+        }
+        optDiv.innerHTML = `
+          <span class="opt-label">${String.fromCharCode(65 + index)}.</span>
+          <span>${option}</span>
+        `;
+        optDiv.onclick = () => selectExamAnswer(index);
+        optionsContainer.appendChild(optDiv);
+      });
+
+      // Update navigation buttons
+      document.getElementById('exam-back-btn').disabled = examState.currentQuestionIndex === 0;
+      document.getElementById('exam-next-btn').disabled = examState.currentQuestionIndex === examState.questions.length - 1;
+    }
+
+    function selectExamAnswer(index) {
+      examState.answers[examState.currentQuestionIndex] = index;
+      
+      // Update UI
+      document.querySelectorAll('#exam-q-options .opt').forEach((opt, i) => {
+        opt.classList.toggle('selected', i === index);
+      });
+    }
+
+    function examPrevQuestion() {
+      if (examState.currentQuestionIndex > 0) {
+        examState.currentQuestionIndex--;
+        displayExamQuestion();
+      }
+    }
+
+    function examNextQuestion() {
+      if (examState.currentQuestionIndex < examState.questions.length - 1) {
+        examState.currentQuestionIndex++;
+        displayExamQuestion();
+      }
+    }
+
+    function endExam() {
+      if (confirm('¿Estás seguro de que deseas terminar el simulacro?')) {
+        finishExam();
+      }
+    }
+
+    function finishExam() {
+      clearInterval(examState.timerInterval);
+      
+      // Calculate results
+      let correct = 0;
+      examState.questions.forEach((question, index) => {
+        if (examState.answers[index] === question.correctAnswer) {
+          correct++;
+        }
+      });
+
+      const incorrect = examState.questions.length - correct;
+      const percentage = Math.round((correct / examState.questions.length) * 100);
+
+      // Update results
+      document.getElementById('exam-correct').textContent = correct;
+      document.getElementById('exam-incorrect').textContent = incorrect;
+      document.getElementById('exam-percentage').textContent = percentage + '%';
+
+      // Show results
+      document.getElementById('exam-progress').classList.add('hidden');
+      document.getElementById('exam-results').classList.remove('hidden');
+    }
+
+    function repeatExam() {
+      document.getElementById('exam-results').classList.add('hidden');
+      document.getElementById('exam-intro').classList.remove('hidden');
+    }
+
+    // Chart
+    function initChart() {
+      const ctx = document.getElementById('performance-chart');
+      if (!ctx) return;
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+          datasets: [{
+            label: 'Precisión %',
+            data: [65, 72, 68, 75, 78, 80, 78],
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
