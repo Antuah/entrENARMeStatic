@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>entrENARMe - Plataforma de Preparación ENARM</title>
+  <meta name="description" content="Plataforma de preparación para el ENARM (Examen Nacional de Aspirantes a Residencias Médicas) con sistema de progresión por niveles y gamificación.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    :root {
+      --primary: #D97F8C;
+      --primary-2: #F3B7C1;
+      --secondary: #EBCB8B;
+      --olive: #BBD38A;
+      --ink: #1F2937;
+      --muted: #6B7280;
+      --bg: #FBFAFB;
+      --surface: #FFFFFF;
+      --border: #E9E3E8;
+      --danger: #EF4444;
+      --success: #10B981;
+      --violet: #8B5CF6;
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow: 0 18px 50px rgba(17,24,39,0.08);
+      --shadow-soft: 0 10px 26px rgba(17,24,39,0.06);
+      --t: 0.22s ease;
+    }
+
+    [data-theme="dark"] {
+      --primary: #E89FAB;
+      --primary-2: #D97F8C;
+      --secondary: #F4D79F;
+      --olive: #C9E0A2;
+      --ink: #E5E7EB;
+      --muted: #9CA3AF;
+      --bg: #111827;
+      --surface: #1F2937;
+      --border: #374151;
+      --shadow: 0 18px 50px rgba(0,0,0,0.4);
+      --shadow-soft: 0 10px 26px rgba(0,0,0,0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Poppins, system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(217,127,140,0.18), transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(235,203,139,0.16), transparent 55%),
+                  var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      transition: background var(--t), color var(--t);
+    }
+
+    [data-theme="dark"] body {
+      background: radial-gradient(1200px 600px at 10% 0%, rgba(232,159,171,0.12), transparent 55%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(244,215,159,0.1), transparent 55%),
+                  var(--bg);
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 12px 24px;
+    }
+
+    [data-theme="dark"] header {
+      background: rgba(31,41,55,0.85);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 10px 20px rgba(217,127,140,0.25);
+    }
+
+    .brand h1 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 20px;
+    }
+
+    .brand p {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--ink);
+      transition: var(--t);
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.05);
+    }
+
+    .btn {
+      border: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: var(--t);
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn.ghost {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 140px 24px 80px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero h2 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 48px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .pillrow {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.75);
+      padding: 10px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    [data-theme="dark"] .pill {
+      background: rgba(31,41,55,0.75);
+    }
+
+    .pill strong {
+      font-weight: 700;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 60px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title h3 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .section-title p {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      transition: var(--t);
+    }
+
+    [data-theme="dark"] .feature-card {
+      background: rgba(31,41,55,0.92);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(217,127,140,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .feature-card h4 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Levels Section */
+    .levels {
+      padding: 60px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .level-card {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      text-align: center;
+    }
+
+    [data-theme="dark"] .level-card {
+      background: rgba(31,41,55,0.92);
+    }
+
+    .level-badge {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      color: white;
+      margin: 0 auto 16px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .level-badge.basic {
+      background: var(--olive);
+    }
+
+    .level-badge.integrative {
+      background: var(--secondary);
+    }
+
+    .level-badge.intensive {
+      background: var(--primary);
+    }
+
+    .level-card h4 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .level-card .target {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .level-card p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Route Demo */
+    .route-section {
+      padding: 60px 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .route-demo {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 40px;
+    }
+
+    [data-theme="dark"] .route-demo {
+      background: rgba(31,41,55,0.92);
+    }
+
+    .route {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .node {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      background: #E5E7EB;
+      color: #9CA3AF;
+      box-shadow: 0 10px 0 #D1D5DB;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      transition: var(--t);
+    }
+
+    [data-theme="dark"] .node {
+      background: #374151;
+      color: #D1D5DB;
+      box-shadow: 0 10px 0 #1F2937;
+    }
+
+    .node i {
+      font-size: 30px;
+    }
+
+    .node.done {
+      background: var(--olive);
+      box-shadow: 0 10px 0 rgba(187,211,138,0.55);
+      color: white;
+    }
+
+    .node.current {
+      background: var(--primary);
+      box-shadow: 0 10px 0 rgba(217,127,140,0.55);
+      color: white;
+      animation: bounce 2.2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .node .lbl {
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .line {
+      width: 40px;
+      height: 4px;
+      background: #E5E7EB;
+    }
+
+    [data-theme="dark"] .line {
+      background: #374151;
+    }
+
+    /* Specialties Section */
+    .specialties {
+      padding: 60px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .specialties-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .specialty-tag {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.85);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: var(--t);
+    }
+
+    [data-theme="dark"] .specialty-tag {
+      background: rgba(31,41,55,0.85);
+    }
+
+    .specialty-tag:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* CTA Section */
+    .cta {
+      padding: 80px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, transparent, rgba(217,127,140,0.08));
+    }
+
+    .cta h3 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .cta p {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .hero h2 {
+        font-size: 32px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .brand h1 {
+        font-size: 16px;
+      }
+
+      .brand p {
+        display: none;
+      }
+
+      .header-actions .btn span {
+        display: none;
+      }
+
+      .route {
+        flex-direction: column;
+      }
+
+      .line {
+        width: 4px;
+        height: 28px;
+      }
+
+      .node {
+        width: 65px;
+        height: 65px;
+      }
+
+      .node i {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-badge">
+          <i class="ph-bold ph-graduation-cap"></i>
+        </div>
+        <div>
+          <h1>entrENARMe</h1>
+          <p>Preparación ENARM</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+          <i class="ph-bold ph-moon" id="theme-icon"></i>
+        </button>
+        <a href="https://github.com/Antuah/entrENARMe" class="btn ghost" target="_blank">
+          <i class="ph-bold ph-github-logo"></i>
+          <span>GitHub</span>
+        </a>
+        <a href="#comenzar" class="btn">
+          <i class="ph-bold ph-play"></i>
+          <span>Comenzar</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Tu camino hacia el ENARM comienza aquí</h2>
+    <p>Plataforma de preparación para el Examen Nacional de Aspirantes a Residencias Médicas con sistema de progresión por niveles, gamificación y retroalimentación inteligente.</p>
+    <div class="hero-buttons">
+      <a href="#niveles" class="btn">
+        <i class="ph-bold ph-rocket"></i>
+        Explorar niveles
+      </a>
+      <a href="#caracteristicas" class="btn ghost">
+        <i class="ph-bold ph-info"></i>
+        Conocer más
+      </a>
+    </div>
+    <div class="pillrow">
+      <div class="pill">
+        <i class="ph-fill ph-fire" style="color: var(--secondary);"></i>
+        Rachas de estudio
+      </div>
+      <div class="pill">
+        <i class="ph-fill ph-lightning" style="color: var(--primary);"></i>
+        Sistema de XP
+      </div>
+      <div class="pill">
+        <i class="ph-fill ph-trophy" style="color: var(--olive);"></i>
+        Logros desbloqueables
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="caracteristicas">
+    <div class="section-title">
+      <h3>Características principales</h3>
+      <p>Todo lo que necesitas para prepararte efectivamente</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-brain"></i>
+        </div>
+        <h4>Tutor IA</h4>
+        <p>Asistente inteligente que analiza tu desempeño y te da retroalimentación personalizada para mejorar en áreas específicas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-exam"></i>
+        </div>
+        <h4>Simulacros tipo ENARM</h4>
+        <p>Practica con preguntas diseñadas siguiendo el formato real del examen para familiarizarte con el estilo de evaluación.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-chart-line-up"></i>
+        </div>
+        <h4>Analytics detallado</h4>
+        <p>Visualiza tu progreso por especialidad, identifica fortalezas y áreas de mejora con estadísticas en tiempo real.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-microphone-stage"></i>
+        </div>
+        <h4>Simulación oral</h4>
+        <p>Practica presentaciones de casos clínicos con retroalimentación sobre tu razonamiento y comunicación médica.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-calendar-check"></i>
+        </div>
+        <h4>Plan semanal</h4>
+        <p>Genera planes de estudio personalizados basados en tu tiempo disponible y áreas que necesitan refuerzo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="ph-bold ph-warning-circle"></i>
+        </div>
+        <h4>Banco de errores</h4>
+        <p>Revisa y practica las preguntas que has fallado para convertir tus debilidades en fortalezas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Levels Section -->
+  <section class="levels" id="niveles">
+    <div class="section-title">
+      <h3>Sistema de progresión</h3>
+      <p>Contenido adaptado a tu etapa de formación médica</p>
+    </div>
+    <div class="levels-grid">
+      <div class="level-card">
+        <div class="level-badge basic">
+          <i class="ph-bold ph-plant"></i>
+        </div>
+        <h4>🟢 Nivel Básico</h4>
+        <p class="target">2do y 3er año de carrera</p>
+        <p>Fundamentos de ciencias básicas y clínicas. Comienza a desarrollar habilidades de razonamiento médico desde temprano.</p>
+      </div>
+      <div class="level-card">
+        <div class="level-badge integrative">
+          <i class="ph-bold ph-puzzle-piece"></i>
+        </div>
+        <h4>🟡 Nivel Integrativo</h4>
+        <p class="target">4to y 5to año de carrera</p>
+        <p>Integración de conocimientos clínicos. Casos más complejos que requieren pensamiento analítico y diagnóstico diferencial.</p>
+      </div>
+      <div class="level-card">
+        <div class="level-badge intensive">
+          <i class="ph-bold ph-target"></i>
+        </div>
+        <h4>🔴 Nivel Intensivo ENARM</h4>
+        <p class="target">Internado y Servicio Social</p>
+        <p>Preparación intensiva con simulacros completos, casos clínicos avanzados y estrategias específicas para el examen.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Route Demo -->
+  <section class="route-section">
+    <div class="section-title">
+      <h3>Ruta de aprendizaje</h3>
+      <p>Desbloquea contenido mientras avanzas por sistemas</p>
+    </div>
+    <div class="route-demo">
+      <div class="route">
+        <div class="node done">
+          <i class="ph-fill ph-check"></i>
+          <div class="lbl">Inicio</div>
+        </div>
+        <div class="line"></div>
+        <div class="node current">
+          <i class="ph-fill ph-heartbeat"></i>
+          <div class="lbl">Cardio</div>
+        </div>
+        <div class="line"></div>
+        <div class="node">
+          <i class="ph-fill ph-wind"></i>
+          <div class="lbl">Respi</div>
+        </div>
+        <div class="line"></div>
+        <div class="node">
+          <i class="ph-fill ph-first-aid"></i>
+          <div class="lbl">Urgencias</div>
+        </div>
+        <div class="line"></div>
+        <div class="node">
+          <i class="ph-fill ph-baby"></i>
+          <div class="lbl">Pediatría</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Specialties Section -->
+  <section class="specialties">
+    <div class="section-title">
+      <h3>Especialidades médicas</h3>
+      <p>Cobertura completa del temario ENARM</p>
+    </div>
+    <div class="specialties-list">
+      <span class="specialty-tag">Medicina Interna</span>
+      <span class="specialty-tag">Cirugía General</span>
+      <span class="specialty-tag">Pediatría</span>
+      <span class="specialty-tag">Ginecología y Obstetricia</span>
+      <span class="specialty-tag">Traumatología</span>
+      <span class="specialty-tag">Medicina de Urgencias</span>
+      <span class="specialty-tag">Medicina Familiar</span>
+      <span class="specialty-tag">Psiquiatría</span>
+      <span class="specialty-tag">Dermatología</span>
+      <span class="specialty-tag">Oftalmología</span>
+      <span class="specialty-tag">Otorrinolaringología</span>
+      <span class="specialty-tag">Cardiología</span>
+      <span class="specialty-tag">Neumología</span>
+      <span class="specialty-tag">Gastroenterología</span>
+      <span class="specialty-tag">Nefrología</span>
+      <span class="specialty-tag">Neurología</span>
+      <span class="specialty-tag">Endocrinología</span>
+      <span class="specialty-tag">Hematología</span>
+      <span class="specialty-tag">Infectología</span>
+      <span class="specialty-tag">Reumatología</span>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta" id="comenzar">
+    <h3>¿Listo para comenzar?</h3>
+    <p>Únete a la plataforma y comienza tu preparación para el ENARM hoy mismo.</p>
+    <a href="https://github.com/Antuah/entrENARMe" class="btn" target="_blank">
+      <i class="ph-bold ph-github-logo"></i>
+      Ver proyecto en GitHub
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>entrENARMe © 2026 · Desarrollado para apoyar a estudiantes de medicina</p>
+    <p style="margin-top: 8px;">
+      <a href="https://github.com/Antuah/entrENARMe" target="_blank">GitHub</a>
+    </p>
+  </footer>
+
+  <script>
+    // Theme toggle functionality
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        icon.className = 'ph-bold ph-moon';
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        icon.className = 'ph-bold ph-sun';
+      }
+    }
+
+    // Load saved theme
+    (function() {
+      const theme = localStorage.getItem('theme');
+      const icon = document.getElementById('theme-icon');
+      
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if (icon) icon.className = 'ph-bold ph-sun';
+      }
+    })();
+  </script>
+</body>
+</html>
