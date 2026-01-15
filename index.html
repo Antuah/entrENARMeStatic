@@ -1,15 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <style>
+    html {
+      background-color: #FBFAFB;
+    }
+    html[data-theme="dark"] {
+      background-color: #111827;
+    }
+    body {
+      margin: 0;
+      background-color: transparent;
+    }
+  </style>
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>entrENARMe - Plataforma de Preparación ENARM</title>
-  <meta name="description" content="Plataforma de preparación para el ENARM (Examen Nacional de Aspirantes a Residencias Médicas) con sistema de progresión por niveles y gamificación.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
+
     :root {
       --primary: #D97F8C;
       --primary-2: #F3B7C1;
@@ -23,12 +45,19 @@
       --danger: #EF4444;
       --success: #10B981;
       --violet: #8B5CF6;
+
       --radius-xl: 26px;
       --radius-lg: 18px;
       --radius-md: 14px;
       --shadow: 0 18px 50px rgba(17,24,39,0.08);
       --shadow-soft: 0 10px 26px rgba(17,24,39,0.06);
       --t: 0.22s ease;
+      --max: 980px;
+
+      --safeTop: env(safe-area-inset-top);
+      --safeRight: env(safe-area-inset-right);
+      --safeBottom: env(safe-area-inset-bottom);
+      --safeLeft: env(safe-area-inset-left);
     }
 
     [data-theme="dark"] {
@@ -41,6 +70,10 @@
       --bg: #111827;
       --surface: #1F2937;
       --border: #374151;
+      --danger: #F87171;
+      --success: #34D399;
+      --violet: #A78BFA;
+      
       --shadow: 0 18px 50px rgba(0,0,0,0.4);
       --shadow-soft: 0 10px 26px rgba(0,0,0,0.3);
     }
@@ -52,54 +85,106 @@
     }
 
     html {
-      scroll-behavior: smooth;
+      background-color: #FBFAFB;
+      transition: background-color 0s;
+    }
+
+    [data-theme="dark"] html {
+      background-color: #111827;
+    }
+
+    html, body {
+      height: 100%;
     }
 
     body {
-      font-family: Poppins, system-ui, -apple-system, sans-serif;
-      background: radial-gradient(1200px 600px at 10% 0%, rgba(217,127,140,0.18), transparent 55%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(235,203,139,0.16), transparent 55%),
-                  var(--bg);
+      font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(217,127,140,0.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(235,203,139,0.16), transparent 55%),
+        var(--bg);
       color: var(--ink);
-      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      overflow: hidden;
+
+      padding: var(--safeTop) var(--safeRight) var(--safeBottom) var(--safeLeft);
+      padding-left: calc(var(--safeLeft) + 270px);
+      padding-right: calc(var(--safeRight) + 340px);
+
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
       transition: background var(--t), color var(--t);
     }
 
     [data-theme="dark"] body {
-      background: radial-gradient(1200px 600px at 10% 0%, rgba(232,159,171,0.12), transparent 55%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(244,215,159,0.1), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(232,159,171,0.12), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(244,215,159,0.1), transparent 55%),
+        var(--bg);
     }
 
-    /* Header */
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-      padding: 12px 24px;
-    }
-
-    [data-theme="dark"] header {
-      background: rgba(31,41,55,0.85);
-    }
-
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* Layout */
+    .layout {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      height: 100vh;
+      width: 100%;
     }
 
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 270px;
+      height: 100vh;
+      background: rgba(255,255,255,0.85);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+    }
+
+    .main {
+      flex: 1;
+      overflow: auto;
+      padding: 22px 100px 80px 100px;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .right {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 340px;
+      height: 100vh;
+      background: rgba(255,255,255,0.85);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Brand */
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.72));
+      box-shadow: var(--shadow-soft);
+      min-width: 0;
     }
 
     .brand-badge {
@@ -113,297 +198,207 @@
       color: white;
       font-size: 22px;
       box-shadow: 0 10px 20px rgba(217,127,140,0.25);
+      flex: 0 0 auto;
     }
 
     .brand h1 {
       font-family: Fredoka, Poppins, sans-serif;
-      font-size: 20px;
+      font-size: 18px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .brand p {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .header-actions {
+    /* Nav */
+    .nav {
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 12px 12px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
       gap: 12px;
-      align-items: center;
-    }
-
-    .theme-toggle {
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 12px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: var(--ink);
-      transition: var(--t);
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.05);
-    }
-
-    .btn {
-      border: 0;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      padding: 12px 20px;
-      border-radius: 14px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-      transition: var(--t);
-      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .btn.ghost {
-      background: var(--surface);
-      color: var(--ink);
-      border: 1px solid var(--border);
-      box-shadow: none;
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 140px 24px 80px;
-      text-align: center;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .hero h2 {
-      font-family: Fredoka, Poppins, sans-serif;
-      font-size: 48px;
-      line-height: 1.2;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero p {
-      font-size: 18px;
       color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto 30px;
-      line-height: 1.6;
+      transition: var(--t);
+      font-weight: 600;
+      min-width: 0;
+      font-family: Poppins, sans-serif;
+      font-size: 14px;
     }
 
-    .hero-buttons {
+    .nav-btn:hover {
+      background: rgba(217,127,140,0.08);
+      color: var(--ink);
+    }
+
+    .nav-btn.active {
+      background: rgba(217,127,140,0.12);
+      border-color: rgba(217,127,140,0.28);
+      color: var(--ink);
+    }
+
+    .nav-btn.active i {
+      color: var(--primary);
+    }
+
+    .nav-btn i {
+      font-size: 22px;
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+
+    .nav-btn span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main content */
+    .wrap {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .view {
+      display: none;
+      animation: fade 0.32s ease;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .topbar {
       display: flex;
-      gap: 16px;
-      justify-content: center;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
+    }
+
+    .title h2 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+      word-break: break-word;
+    }
+
+    .title p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
     }
 
     .pillrow {
       display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 40px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .pill {
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.75);
-      padding: 10px 14px;
+      padding: 8px 10px;
       border-radius: 999px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 13px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    [data-theme="dark"] .pill {
-      background: rgba(31,41,55,0.75);
+      font-size: 12px;
+      box-shadow: 0 8px 18px rgba(17,24,39,0.04);
+      white-space: nowrap;
     }
 
     .pill strong {
       font-weight: 700;
     }
 
-    /* Features Section */
-    .features {
-      padding: 60px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
+    .grid {
+      display: grid;
+      grid-template-columns: 2.3fr 1.4fr;
+      gap: 14px;
+      margin-top: 14px;
+      width: 100%;
+      min-width: 0;
     }
 
-    .section-title {
-      text-align: center;
-      margin-bottom: 50px;
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .section-title h3 {
+    .view > .card {
+      margin-top: 14px;
+      flex: 1;
+    }
+
+    .card > * {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .card h3 {
       font-family: Fredoka, Poppins, sans-serif;
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    .section-title p {
-      color: var(--muted);
       font-size: 16px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .feature-card {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.92);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      transition: var(--t);
-    }
-
-    [data-theme="dark"] .feature-card {
-      background: rgba(31,41,55,0.92);
-    }
-
-    .feature-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .feature-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: rgba(217,127,140,0.12);
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 28px;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .card h3 i {
       color: var(--primary);
-      margin-bottom: 16px;
-    }
-
-    .feature-card h4 {
-      font-family: Fredoka, Poppins, sans-serif;
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .feature-card p {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    /* Levels Section */
-    .levels {
-      padding: 60px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .levels-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .level-card {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.92);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      text-align: center;
-    }
-
-    [data-theme="dark"] .level-card {
-      background: rgba(31,41,55,0.92);
-    }
-
-    .level-badge {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      color: white;
-      margin: 0 auto 16px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-
-    .level-badge.basic {
-      background: var(--olive);
-    }
-
-    .level-badge.integrative {
-      background: var(--secondary);
-    }
-
-    .level-badge.intensive {
-      background: var(--primary);
-    }
-
-    .level-card h4 {
-      font-family: Fredoka, Poppins, sans-serif;
       font-size: 20px;
-      margin-bottom: 8px;
+      flex: 0 0 auto;
     }
 
-    .level-card .target {
+    .muted {
       color: var(--muted);
       font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    .level-card p {
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    /* Route Demo */
-    .route-section {
-      padding: 60px 24px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .route-demo {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.92);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      padding: 40px;
-    }
-
-    [data-theme="dark"] .route-demo {
-      background: rgba(31,41,55,0.92);
     }
 
     .route {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       gap: 20px;
-      flex-wrap: wrap;
     }
 
     .node {
@@ -413,19 +408,15 @@
       background: #E5E7EB;
       color: #9CA3AF;
       box-shadow: 0 10px 0 #D1D5DB;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 12px;
       font-weight: 700;
+      position: relative;
       transition: var(--t);
-    }
-
-    [data-theme="dark"] .node {
-      background: #374151;
-      color: #D1D5DB;
-      box-shadow: 0 10px 0 #1F2937;
     }
 
     .node i {
@@ -445,9 +436,16 @@
       animation: bounce 2.2s infinite;
     }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+    .node.locked {
+      background: #E5E7EB;
+      color: #9CA3AF;
+      box-shadow: 0 10px 0 #D1D5DB;
+      cursor: not-allowed;
+    }
+
+    .node:active {
+      transform: translateY(6px);
+      box-shadow: none;
     }
 
     .node .lbl {
@@ -456,360 +454,731 @@
     }
 
     .line {
-      width: 40px;
-      height: 4px;
+      width: 4px;
+      height: 28px;
       background: #E5E7EB;
+      margin-top: -6px;
+      margin-bottom: -6px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .help {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .btn {
+      border: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 10px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: var(--t);
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+      min-height: 44px;
+      font-family: Poppins, sans-serif;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0px);
+    }
+
+    .btn.ghost {
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, #EF4444, #F59E0B);
+    }
+
+    /* Hamburger menu button */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 1001;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      color: var(--ink);
+      font-size: 24px;
+      align-items: center;
+      justify-content: center;
+      transition: var(--t);
+    }
+
+    .hamburger:hover {
+      transform: scale(1.05);
+    }
+
+    .hamburger:active {
+      transform: scale(0.95);
+    }
+
+    /* Sidebar overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Dark mode overrides */
+    [data-theme="dark"] .sidebar {
+      background: rgba(31, 41, 55, 0.85);
+    }
+
+    [data-theme="dark"] .right {
+      background: rgba(31, 41, 55, 0.85);
+    }
+
+    [data-theme="dark"] .brand {
+      background: linear-gradient(180deg, rgba(31,41,55,0.92), rgba(17,24,39,0.72));
+    }
+
+    [data-theme="dark"] .card {
+      background: rgba(31,41,55,0.92);
+    }
+
+    [data-theme="dark"] .pill {
+      background: rgba(31,41,55,0.75);
+    }
+
+    [data-theme="dark"] .btn.ghost {
+      background: rgba(31,41,55,0.85);
+      color: var(--ink);
+    }
+
+    [data-theme="dark"] .hamburger {
+      background: rgba(31,41,55,0.95);
+    }
+
+    [data-theme="dark"] .node {
+      background: #374151;
+      color: #D1D5DB;
+      box-shadow: 0 10px 0 #1F2937;
+    }
+
+    [data-theme="dark"] .node.done {
+      background: var(--olive);
+      box-shadow: 0 10px 0 rgba(201,224,162,0.55);
+      color: white;
+    }
+
+    [data-theme="dark"] .node.current {
+      background: var(--primary);
+      box-shadow: 0 10px 0 rgba(232,159,171,0.55);
+      color: white;
+    }
+
+    [data-theme="dark"] .node.locked {
+      background: #374151;
+      color: #D1D5DB;
+      box-shadow: 0 10px 0 #1F2937;
     }
 
     [data-theme="dark"] .line {
       background: #374151;
     }
 
-    /* Specialties Section */
-    .specialties {
-      padding: 60px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
+    [data-theme="dark"] .two-col > div {
+      background: rgba(31,41,55,0.8) !important;
     }
 
-    .specialties-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
+    [data-theme="dark"] .help {
+      color: var(--muted);
     }
 
-    .specialty-tag {
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 10px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.85);
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: var(--t);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
     }
 
-    [data-theme="dark"] .specialty-tag {
-      background: rgba(31,41,55,0.85);
+    [data-theme="dark"] .sidebar-footer {
+      background: rgba(31,41,55,0.72);
     }
 
-    .specialty-tag:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-soft);
+    /* Stats */
+    .stat {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
 
-    /* CTA Section */
-    .cta {
-      padding: 80px 24px;
-      text-align: center;
-      background: linear-gradient(180deg, transparent, rgba(217,127,140,0.08));
+    [data-theme="dark"] .stat {
+      background: rgba(31,41,55,0.92);
     }
 
-    .cta h3 {
-      font-family: Fredoka, Poppins, sans-serif;
-      font-size: 32px;
-      margin-bottom: 16px;
+    .stat .l {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
 
-    .cta p {
-      color: var(--muted);
+    .stat .l i {
+      font-size: 22px;
+      flex: 0 0 auto;
+    }
+
+    .stat .v {
+      font-weight: 900;
       font-size: 16px;
-      margin-bottom: 30px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
-    /* Footer */
-    footer {
-      padding: 40px 24px;
-      text-align: center;
-      border-top: 1px solid var(--border);
-    }
-
-    footer p {
+    .stat .k {
+      font-size: 12px;
       color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.75);
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 8px 18px rgba(17,24,39,0.04);
+    }
+
+    [data-theme="dark"] .tag {
+      background: rgba(31,41,55,0.75);
+    }
+
+    .assistant {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    [data-theme="dark"] .assistant {
+      background: rgba(31,41,55,0.92);
+    }
+
+    .assistant h4 {
+      font-family: Fredoka, Poppins, sans-serif;
       font-size: 14px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
+    .assistant p {
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.55;
     }
 
-    /* Mobile Responsive */
+    .assistant .tip {
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Theme toggle */
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 360px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      transition: var(--t);
+      z-index: 100;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    /* Mobile styles */
     @media (max-width: 768px) {
-      .hero h2 {
-        font-size: 32px;
+      .hamburger {
+        display: flex;
       }
 
-      .hero p {
-        font-size: 16px;
+      .sidebar-overlay.active {
+        display: block;
       }
 
-      .brand h1 {
-        font-size: 16px;
+      .sidebar {
+        left: -270px;
+        transition: left 0.3s ease;
+        z-index: 1000;
       }
 
-      .brand p {
+      .sidebar.open {
+        left: 0;
+      }
+
+      .right {
         display: none;
       }
 
-      .header-actions .btn span {
-        display: none;
+      body {
+        padding-left: var(--safeLeft);
+        padding-right: var(--safeRight);
+      }
+
+      .main {
+        padding: 16px 16px 60px 16px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 50px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .title h2 {
+        font-size: 22px;
+      }
+
+      .title p {
+        font-size: 12px;
+      }
+
+      .card {
+        padding: 14px;
       }
 
       .route {
-        flex-direction: column;
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
       }
 
-      .line {
-        width: 4px;
-        height: 28px;
+      .route .line {
+        width: 28px;
+        height: 4px;
       }
 
       .node {
-        width: 65px;
-        height: 65px;
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
       }
 
       .node i {
-        font-size: 26px;
+        font-size: 24px;
+      }
+
+      .node .lbl {
+        font-size: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .pillrow {
+        width: 100%;
+      }
+
+      .pill {
+        font-size: 11px;
+        padding: 6px 8px;
+      }
+
+      .theme-toggle {
+        right: 20px;
+        bottom: 20px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header>
-    <div class="header-content">
+  <div class="layout">
+    <!-- Hamburger Button -->
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <i class="ph-bold ph-list" id="hamburger-icon"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="brand-badge">
-          <i class="ph-bold ph-graduation-cap"></i>
-        </div>
+        <div class="brand-badge"><i class="ph-bold ph-graduation-cap"></i></div>
         <div>
-          <h1>entrENARMe</h1>
-          <p>Preparación ENARM</p>
+          <h1>EntrENARMe</h1>
+          <p>MVP · ENARM / USMLE / MIR</p>
         </div>
       </div>
-      <div class="header-actions">
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
-          <i class="ph-bold ph-moon" id="theme-icon"></i>
+      <nav class="nav">
+        <button class="nav-btn active" onclick="showView('home')">
+          <i class="ph ph-bold ph-compass"></i>
+          <span>Inicio</span>
         </button>
-        <a href="https://github.com/Antuah/entrENARMe" class="btn ghost" target="_blank">
-          <i class="ph-bold ph-github-logo"></i>
-          <span>GitHub</span>
-        </a>
-        <a href="#comenzar" class="btn">
-          <i class="ph-bold ph-play"></i>
-          <span>Comenzar</span>
-        </a>
+        <button class="nav-btn" onclick="showView('practice')">
+          <i class="ph ph-bold ph-barbell"></i>
+          <span>Entrenar</span>
+        </button>
+        <button class="nav-btn" onclick="showView('exam')">
+          <i class="ph ph-bold ph-exam"></i>
+          <span>Simulacro</span>
+        </button>
+        <button class="nav-btn" onclick="showView('errors')">
+          <i class="ph ph-bold ph-warning-circle"></i>
+          <span>Errores</span>
+        </button>
+        <button class="nav-btn" onclick="showView('plan')">
+          <i class="ph ph-bold ph-calendar-check"></i>
+          <span>Plan semanal</span>
+        </button>
+        <button class="nav-btn" onclick="showView('voice')">
+          <i class="ph ph-bold ph-microphone-stage"></i>
+          <span>Simulación oral</span>
+        </button>
+        <button class="nav-btn" onclick="showView('tutor')">
+          <i class="ph ph-bold ph-chats"></i>
+          <span>Tutor IA</span>
+        </button>
+        <button class="nav-btn" onclick="showView('analytics')">
+          <i class="ph ph-bold ph-chart-line-up"></i>
+          <span>Analytics</span>
+        </button>
+        <button class="nav-btn" onclick="showView('settings')">
+          <i class="ph ph-bold ph-gear-six"></i>
+          <span>Ajustes</span>
+        </button>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="ph-fill ph-sparkle" style="color: var(--primary); font-size: 20px;"></i>
+          <div style="font-weight: 800; font-size: 12px;">MVP listo para demo</div>
+        </div>
+        <div class="muted" style="margin-top: 6px; font-size: 11px;">
+          Ruta ENARM + simulacro + errores + plan semanal + analytics.
+        </div>
+        <button class="btn danger" style="margin-top: 10px; width: 100%;">Cerrar sesión</button>
       </div>
     </div>
-  </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <h2>Tu camino hacia el ENARM comienza aquí</h2>
-    <p>Plataforma de preparación para el Examen Nacional de Aspirantes a Residencias Médicas con sistema de progresión por niveles, gamificación y retroalimentación inteligente.</p>
-    <div class="hero-buttons">
-      <a href="#niveles" class="btn">
-        <i class="ph-bold ph-rocket"></i>
-        Explorar niveles
-      </a>
-      <a href="#caracteristicas" class="btn ghost">
-        <i class="ph-bold ph-info"></i>
-        Conocer más
-      </a>
-    </div>
-    <div class="pillrow">
-      <div class="pill">
-        <i class="ph-fill ph-fire" style="color: var(--secondary);"></i>
-        Rachas de estudio
-      </div>
-      <div class="pill">
-        <i class="ph-fill ph-lightning" style="color: var(--primary);"></i>
-        Sistema de XP
-      </div>
-      <div class="pill">
-        <i class="ph-fill ph-trophy" style="color: var(--olive);"></i>
-        Logros desbloqueables
-      </div>
-    </div>
-  </section>
+    <!-- Main Content -->
+    <div class="main">
+      <!-- Home View -->
+      <div class="view active" id="view-home">
+        <div class="topbar">
+          <div class="title">
+            <h2>Inicio</h2>
+            <p>Entrenador para 5.º, 6.º e internado · simulacros tipo ENARM + feedback.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-fire" style="color: var(--secondary);"></i> Racha <strong>7</strong></div>
+            <div class="pill"><i class="ph-fill ph-lightning" style="color: var(--primary);"></i> XP <strong>1,250</strong></div>
+            <div class="pill"><i class="ph-fill ph-coin" style="color: var(--secondary);"></i> Monedas <strong>340</strong></div>
+          </div>
+        </div>
 
-  <!-- Features Section -->
-  <section class="features" id="caracteristicas">
-    <div class="section-title">
-      <h3>Características principales</h3>
-      <p>Todo lo que necesitas para prepararte efectivamente</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-brain"></i>
-        </div>
-        <h4>Tutor IA</h4>
-        <p>Asistente inteligente que analiza tu desempeño y te da retroalimentación personalizada para mejorar en áreas específicas.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-exam"></i>
-        </div>
-        <h4>Simulacros tipo ENARM</h4>
-        <p>Practica con preguntas diseñadas siguiendo el formato real del examen para familiarizarte con el estilo de evaluación.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-chart-line-up"></i>
-        </div>
-        <h4>Analytics detallado</h4>
-        <p>Visualiza tu progreso por especialidad, identifica fortalezas y áreas de mejora con estadísticas en tiempo real.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-microphone-stage"></i>
-        </div>
-        <h4>Simulación oral</h4>
-        <p>Practica presentaciones de casos clínicos con retroalimentación sobre tu razonamiento y comunicación médica.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-calendar-check"></i>
-        </div>
-        <h4>Plan semanal</h4>
-        <p>Genera planes de estudio personalizados basados en tu tiempo disponible y áreas que necesitan refuerzo.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="ph-bold ph-warning-circle"></i>
-        </div>
-        <h4>Banco de errores</h4>
-        <p>Revisa y practica las preguntas que has fallado para convertir tus debilidades en fortalezas.</p>
-      </div>
-    </div>
-  </section>
+        <div class="grid">
+          <div class="card">
+            <h3><i class="ph-bold ph-map-trifold"></i> Ruta ENARM (MVP)</h3>
+            <p class="muted">Nodos por sistema: desbloqueas sets de preguntas y mini-simulacros.</p>
 
-  <!-- Levels Section -->
-  <section class="levels" id="niveles">
-    <div class="section-title">
-      <h3>Sistema de progresión</h3>
-      <p>Contenido adaptado a tu etapa de formación médica</p>
-    </div>
-    <div class="levels-grid">
-      <div class="level-card">
-        <div class="level-badge basic">
-          <i class="ph-bold ph-plant"></i>
-        </div>
-        <h4>🟢 Nivel Básico</h4>
-        <p class="target">2do y 3er año de carrera</p>
-        <p>Fundamentos de ciencias básicas y clínicas. Comienza a desarrollar habilidades de razonamiento médico desde temprano.</p>
-      </div>
-      <div class="level-card">
-        <div class="level-badge integrative">
-          <i class="ph-bold ph-puzzle-piece"></i>
-        </div>
-        <h4>🟡 Nivel Integrativo</h4>
-        <p class="target">4to y 5to año de carrera</p>
-        <p>Integración de conocimientos clínicos. Casos más complejos que requieren pensamiento analítico y diagnóstico diferencial.</p>
-      </div>
-      <div class="level-card">
-        <div class="level-badge intensive">
-          <i class="ph-bold ph-target"></i>
-        </div>
-        <h4>🔴 Nivel Intensivo ENARM</h4>
-        <p class="target">Internado y Servicio Social</p>
-        <p>Preparación intensiva con simulacros completos, casos clínicos avanzados y estrategias específicas para el examen.</p>
-      </div>
-    </div>
-  </section>
+            <div class="route" style="margin-top: 14px;">
+              <div class="node done"><i class="ph-fill ph-check"></i><div class="lbl">Inicio</div></div>
+              <div class="line"></div>
+              <div class="node current"><i class="ph-fill ph-heartbeat"></i><div class="lbl">Cardio</div></div>
+              <div class="line"></div>
+              <div class="node locked"><i class="ph-fill ph-wind"></i><div class="lbl">Respi</div></div>
+              <div class="line"></div>
+              <div class="node locked"><i class="ph-fill ph-first-aid"></i><div class="lbl">Urgencias</div></div>
+              <div class="line"></div>
+              <div class="node locked"><i class="ph-fill ph-baby"></i><div class="lbl">Pediatría</div></div>
+            </div>
 
-  <!-- Route Demo -->
-  <section class="route-section">
-    <div class="section-title">
-      <h3>Ruta de aprendizaje</h3>
-      <p>Desbloquea contenido mientras avanzas por sistemas</p>
-    </div>
-    <div class="route-demo">
-      <div class="route">
-        <div class="node done">
-          <i class="ph-fill ph-check"></i>
-          <div class="lbl">Inicio</div>
-        </div>
-        <div class="line"></div>
-        <div class="node current">
-          <i class="ph-fill ph-heartbeat"></i>
-          <div class="lbl">Cardio</div>
-        </div>
-        <div class="line"></div>
-        <div class="node">
-          <i class="ph-fill ph-wind"></i>
-          <div class="lbl">Respi</div>
-        </div>
-        <div class="line"></div>
-        <div class="node">
-          <i class="ph-fill ph-first-aid"></i>
-          <div class="lbl">Urgencias</div>
-        </div>
-        <div class="line"></div>
-        <div class="node">
-          <i class="ph-fill ph-baby"></i>
-          <div class="lbl">Pediatría</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+              <button class="btn" onclick="showView('practice')"><i class="ph-bold ph-play"></i> Práctica rápida</button>
+              <button class="btn ghost" onclick="showView('exam')"><i class="ph-bold ph-exam"></i> Simulacro demo</button>
+              <button class="btn ghost" onclick="showView('errors')"><i class="ph-bold ph-warning-circle"></i> Revisar errores</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3><i class="ph-bold ph-stethoscope"></i> Objetivo del MVP</h3>
+            <p class="muted">Acompañar a estudiantes de 5.º–internado para subir % de aciertos en simulacros.</p>
+            <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+              <div class="two-col">
+                <div style="border: 1px solid var(--border); border-radius: 18px; padding: 12px; background: rgba(255,255,255,0.8);">
+                  <div style="font-weight: 800; font-size: 13px;">Alumno</div>
+                  <div class="muted" style="margin-top: 6px;">Practicar por bloques, ver errores, plan semanal sencillo.</div>
+                </div>
+                <div style="border: 1px solid var(--border); border-radius: 18px; padding: 12px; background: rgba(255,255,255,0.8);">
+                  <div style="font-weight: 800; font-size: 13px;">Coordinador</div>
+                  <div class="muted" style="margin-top: 6px;">Analytics por cohorte y sistemas (vista demo).</div>
+                </div>
+              </div>
+              <div class="help" style="margin-top: 10px;">
+                Este demo usa datos fake, pero la experiencia y el flujo ya están listos para conectar banco real + IA.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Specialties Section -->
-  <section class="specialties">
-    <div class="section-title">
-      <h3>Especialidades médicas</h3>
-      <p>Cobertura completa del temario ENARM</p>
-    </div>
-    <div class="specialties-list">
-      <span class="specialty-tag">Medicina Interna</span>
-      <span class="specialty-tag">Cirugía General</span>
-      <span class="specialty-tag">Pediatría</span>
-      <span class="specialty-tag">Ginecología y Obstetricia</span>
-      <span class="specialty-tag">Traumatología</span>
-      <span class="specialty-tag">Medicina de Urgencias</span>
-      <span class="specialty-tag">Medicina Familiar</span>
-      <span class="specialty-tag">Psiquiatría</span>
-      <span class="specialty-tag">Dermatología</span>
-      <span class="specialty-tag">Oftalmología</span>
-      <span class="specialty-tag">Otorrinolaringología</span>
-      <span class="specialty-tag">Cardiología</span>
-      <span class="specialty-tag">Neumología</span>
-      <span class="specialty-tag">Gastroenterología</span>
-      <span class="specialty-tag">Nefrología</span>
-      <span class="specialty-tag">Neurología</span>
-      <span class="specialty-tag">Endocrinología</span>
-      <span class="specialty-tag">Hematología</span>
-      <span class="specialty-tag">Infectología</span>
-      <span class="specialty-tag">Reumatología</span>
-    </div>
-  </section>
+      <!-- Practice View -->
+      <div class="view" id="view-practice">
+        <div class="topbar">
+          <div class="title">
+            <h2>Entrenar</h2>
+            <p>Selecciona un modo de práctica para comenzar.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-barbell"></i> Modos de práctica</h3>
+          <p class="muted">Próximamente: diferentes modos de entrenamiento por sistema y dificultad.</p>
+          <div style="margin-top: 16px;">
+            <button class="btn"><i class="ph-bold ph-play"></i> Iniciar práctica rápida</button>
+          </div>
+        </div>
+      </div>
 
-  <!-- CTA Section -->
-  <section class="cta" id="comenzar">
-    <h3>¿Listo para comenzar?</h3>
-    <p>Únete a la plataforma y comienza tu preparación para el ENARM hoy mismo.</p>
-    <a href="https://github.com/Antuah/entrENARMe" class="btn" target="_blank">
-      <i class="ph-bold ph-github-logo"></i>
-      Ver proyecto en GitHub
-    </a>
-  </section>
+      <!-- Exam View -->
+      <div class="view" id="view-exam">
+        <div class="topbar">
+          <div class="title">
+            <h2>Simulacro</h2>
+            <p>Simulacros tipo ENARM con tiempo y condiciones reales.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-exam"></i> Simulacro demo</h3>
+          <p class="muted">Próximamente: simulacros completos con 150 preguntas y tiempo limitado.</p>
+          <div style="margin-top: 16px;">
+            <button class="btn"><i class="ph-bold ph-play"></i> Iniciar simulacro</button>
+          </div>
+        </div>
+      </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>entrENARMe © 2026 · Desarrollado para apoyar a estudiantes de medicina</p>
-    <p style="margin-top: 8px;">
-      <a href="https://github.com/Antuah/entrENARMe" target="_blank">GitHub</a>
-    </p>
-  </footer>
+      <!-- Errors View -->
+      <div class="view" id="view-errors">
+        <div class="topbar">
+          <div class="title">
+            <h2>Errores</h2>
+            <p>Revisa y practica las preguntas que has fallado.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-warning-circle"></i> Banco de errores</h3>
+          <p class="muted">Aquí aparecerán las preguntas que has respondido incorrectamente para que puedas repasarlas.</p>
+        </div>
+      </div>
+
+      <!-- Plan View -->
+      <div class="view" id="view-plan">
+        <div class="topbar">
+          <div class="title">
+            <h2>Plan semanal</h2>
+            <p>Plan simple en función de tu tiempo y tus áreas débiles.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-calendar-check"></i> Tu plan personalizado</h3>
+          <p class="muted">Genera un plan de estudio basado en tu disponibilidad y áreas de mejora.</p>
+          <div style="margin-top: 16px;">
+            <button class="btn"><i class="ph-bold ph-magic-wand"></i> Generar plan</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice View -->
+      <div class="view" id="view-voice">
+        <div class="topbar">
+          <div class="title">
+            <h2>Simulación oral</h2>
+            <p>Practica presentaciones de casos clínicos.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-microphone-stage"></i> Práctica oral</h3>
+          <p class="muted">Próximamente: simulación de presentación de casos con feedback de IA.</p>
+        </div>
+      </div>
+
+      <!-- Tutor View -->
+      <div class="view" id="view-tutor">
+        <div class="topbar">
+          <div class="title">
+            <h2>Tutor IA</h2>
+            <p>Tu asistente inteligente para resolver dudas.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-chats"></i> Chat con el tutor</h3>
+          <p class="muted">Próximamente: chat con IA especializada en medicina para resolver tus dudas.</p>
+        </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div class="view" id="view-analytics">
+        <div class="topbar">
+          <div class="title">
+            <h2>Analytics</h2>
+            <p>Estadísticas detalladas de tu progreso.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-chart-line-up"></i> Tu progreso</h3>
+          <p class="muted">Visualiza tu avance por especialidad y áreas de mejora.</p>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="view" id="view-settings">
+        <div class="topbar">
+          <div class="title">
+            <h2>Ajustes</h2>
+            <p>Configura tu experiencia en la plataforma.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ph-bold ph-gear-six"></i> Configuración</h3>
+          <p class="muted">Personaliza tu perfil y preferencias de estudio.</p>
+        </div>
+      </div>
+
+      <!-- Theme Toggle -->
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+        <i class="ph-bold ph-moon" id="theme-icon"></i>
+      </button>
+    </div>
+
+    <!-- Right Panel -->
+    <aside class="right">
+      <div class="stat">
+        <div class="l">
+          <i class="ph-fill ph-fire" style="color: var(--secondary);"></i>
+          <div>
+            <div class="v">7</div>
+            <div class="k">Racha</div>
+          </div>
+        </div>
+        <div class="tag"><i class="ph-fill ph-sparkle"></i> constancia</div>
+      </div>
+
+      <div class="stat">
+        <div class="l">
+          <i class="ph-fill ph-lightning" style="color: var(--primary);"></i>
+          <div>
+            <div class="v">1,250</div>
+            <div class="k">XP total</div>
+          </div>
+        </div>
+        <div class="tag"><i class="ph-fill ph-target"></i> avance</div>
+      </div>
+
+      <div class="stat">
+        <div class="l">
+          <i class="ph-fill ph-coin" style="color: var(--secondary);"></i>
+          <div>
+            <div class="v">340</div>
+            <div class="k">Monedas</div>
+          </div>
+        </div>
+        <button class="btn ghost" onclick="showView('practice')" style="padding: 8px 10px; border-radius: 14px;">
+          <i class="ph-bold ph-plus"></i> Ganar
+        </button>
+      </div>
+
+      <div class="assistant">
+        <h4><i class="ph-fill ph-robot" style="color: var(--primary);"></i> Asistente EntrENARMe</h4>
+        <p>Hoy tu foco es: <b>Cardio</b>.</p>
+        <div class="tip">Tip: identifica el "dato bisagra" del caso (lo que cambia por completo el Dx o el manejo).</div>
+      </div>
+
+      <div class="card" style="padding: 12px;">
+        <h3 style="margin-bottom: 8px;"><i class="ph-bold ph-clipboard-text"></i> Mini-dashboard</h3>
+        <div class="muted">Último set: <b>Cardio #3</b></div>
+        <div class="muted" style="margin-top: 6px;">Área débil: <b>Urgencias</b></div>
+        <div style="margin-top: 10px; height: 110px;">
+          <canvas id="miniChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 12px;">
+        <h3 style="margin-bottom: 8px;"><i class="ph-bold ph-users-three"></i> Vista coordinador (demo)</h3>
+        <div class="muted">
+          Cohorte demo: 120 alumnos · promedio global 62% · cardio 54%, respi 48%, urgencias 60%.
+        </div>
+      </div>
+    </aside>
+  </div>
 
   <script>
-    // Theme toggle functionality
+    // Theme toggle
     function toggleTheme() {
       const html = document.documentElement;
       const icon = document.getElementById('theme-icon');
@@ -835,6 +1204,100 @@
         if (icon) icon.className = 'ph-bold ph-sun';
       }
     })();
+
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const icon = document.getElementById('hamburger-icon');
+      
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+      
+      if (sidebar.classList.contains('open')) {
+        icon.className = 'ph-bold ph-x';
+      } else {
+        icon.className = 'ph-bold ph-list';
+      }
+    }
+
+    // View switching
+    function showView(viewId) {
+      // Hide all views
+      document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+      });
+      
+      // Show selected view
+      const selectedView = document.getElementById('view-' + viewId);
+      if (selectedView) {
+        selectedView.classList.add('active');
+      }
+      
+      // Update nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Find and activate the corresponding nav button
+      const navButtons = document.querySelectorAll('.nav-btn');
+      const viewMap = ['home', 'practice', 'exam', 'errors', 'plan', 'voice', 'tutor', 'analytics', 'settings'];
+      const index = viewMap.indexOf(viewId);
+      if (index !== -1 && navButtons[index]) {
+        navButtons[index].classList.add('active');
+      }
+      
+      // Close sidebar on mobile
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar.classList.contains('open')) {
+        toggleSidebar();
+      }
+    }
+
+    // Initialize mini chart
+    document.addEventListener('DOMContentLoaded', function() {
+      const ctx = document.getElementById('miniChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Cardio', 'Resp', 'Endocrino', 'Urgencias'],
+            datasets: [{
+              data: [67, 50, 83, 40],
+              borderRadius: 8,
+              backgroundColor: ['#D97F8C', '#EBCB8B', '#BBD38A', '#8B5CF6'],
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: { 
+                beginAtZero: true, 
+                max: 100,
+                ticks: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()
+                },
+                grid: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue('--border').trim()
+                }
+              },
+              x: {
+                ticks: {
+                  color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()
+                },
+                grid: {
+                  display: false
+                }
+              }
+            }
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
