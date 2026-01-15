@@ -31,20 +31,35 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #8B5CF6;
-      --secondary: #10B981;
-      --violet: #A78BFA;
-      --olive: #84CC16;
-      --bg-light: #FBFAFB;
-      --bg-dark: #111827;
-      --card-light: #FFFFFF;
-      --card-dark: #1F2937;
-      --text-light: #1F2937;
-      --text-dark: #F9FAFB;
-      --border-light: #E5E7EB;
-      --border-dark: #374151;
+      --primary: #D97F8C;
+      --primary-2: #F3B7C1;
+      --secondary: #EBCB8B;
+      --olive: #BBD38A;
+      --ink: #1F2937;
+      --muted: #6B7280;
+      --bg: #FBFAFB;
+      --surface: #FFFFFF;
+      --border: #E9E3E8;
+      --danger: #EF4444;
       --success: #10B981;
-      --error: #EF4444;
+      --violet: #8B5CF6;
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow: 0 18px 50px rgba(17,24,39,0.08);
+      --shadow-soft: 0 10px 26px rgba(17,24,39,0.06);
+    }
+
+    [data-theme="dark"] {
+      --primary: #E89FAB;
+      --primary-2: #D97F8C;
+      --secondary: #F4D79F;
+      --olive: #C9E0A2;
+      --ink: #E5E7EB;
+      --muted: #9CA3AF;
+      --bg: #111827;
+      --surface: #1F2937;
+      --border: #374151;
     }
 
     * {
@@ -53,25 +68,29 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      color: var(--text-light);
+      color: var(--ink);
       transition: background-color 0.3s ease;
+      background:
+        radial-gradient(1200px 600px at 10% 0%, rgba(217,127,140,0.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(235,203,139,0.16), transparent 55%),
+        var(--bg);
     }
 
     html[data-theme="dark"] body {
-      color: var(--text-dark);
+      color: var(--ink);
     }
 
     /* Layout */
     .container {
       display: grid;
-      grid-template-columns: 260px 1fr 300px;
+      grid-template-columns: 270px 1fr 340px;
       min-height: 100vh;
       gap: 0;
     }
 
     @media (max-width: 1200px) {
       .container {
-        grid-template-columns: 260px 1fr;
+        grid-template-columns: 270px 1fr;
       }
       .right-panel {
         display: none;
@@ -92,24 +111,28 @@
         left: 0;
         bottom: 0;
         z-index: 1000;
-        width: 260px;
+        width: 270px;
       }
     }
 
     /* Sidebar */
     .sidebar {
-      background: var(--card-light);
-      border-right: 1px solid var(--border-light);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border);
       padding: 1.5rem 1rem;
       position: sticky;
       top: 0;
       height: 100vh;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     html[data-theme="dark"] .sidebar {
-      background: var(--card-dark);
-      border-right-color: var(--border-dark);
+      background: rgba(31,41,55,0.85);
+      border-right-color: var(--border);
     }
 
     .logo {
@@ -119,6 +142,19 @@
       color: var(--primary);
       margin-bottom: 2rem;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .logo .badge {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      font-weight: 600;
     }
 
     .nav-item {
@@ -127,7 +163,7 @@
       gap: 0.75rem;
       padding: 0.75rem 1rem;
       margin-bottom: 0.5rem;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.2s ease;
       text-decoration: none;
@@ -135,22 +171,59 @@
     }
 
     .nav-item:hover {
-      background: rgba(139, 92, 246, 0.1);
+      background: rgba(217,127,140,0.1);
       color: var(--primary);
     }
 
     .nav-item.active {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
     }
 
     .nav-item i {
       font-size: 1.25rem;
     }
 
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-footer .mvp-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-footer .btn-logout {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-footer .btn-logout:hover {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
     /* Main Content */
     .main-content {
-      padding: 2rem;
+      padding: 22px 100px 80px 100px;
       overflow-y: auto;
     }
 
@@ -182,30 +255,32 @@
     }
 
     .pill {
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
+      padding: 8px 10px;
+      border-radius: 999px;
       font-size: 0.875rem;
       font-weight: 500;
-      background: rgba(139, 92, 246, 0.1);
-      color: var(--primary);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.75);
+      color: var(--ink);
     }
 
     /* Card */
     .card {
-      background: var(--card-light);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 1.5rem;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 16px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow);
     }
 
     html[data-theme="dark"] .card {
-      background: var(--card-dark);
-      border-color: var(--border-dark);
+      background: rgba(31,41,55,0.92);
+      border-color: var(--border);
     }
 
     .card h2 {
+      font-family: 'Fredoka', sans-serif;
       font-size: 1.25rem;
       margin: 0 0 1rem 0;
       font-weight: 600;
@@ -219,8 +294,8 @@
     }
 
     .mode {
-      border: 2px solid var(--border-light);
-      border-radius: 12px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
       padding: 1.5rem;
       text-align: center;
       cursor: pointer;
@@ -228,23 +303,23 @@
     }
 
     html[data-theme="dark"] .mode {
-      border-color: var(--border-dark);
+      border-color: var(--border);
     }
 
     .mode:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+      box-shadow: var(--shadow-soft);
       border-color: var(--primary);
     }
 
     .mode.active {
       border-color: var(--primary);
-      background: rgba(139, 92, 246, 0.05);
+      background: rgba(217,127,140,0.05);
     }
 
     .mode .ico {
-      width: 60px;
-      height: 60px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
       margin: 0 auto 1rem;
       display: flex;
@@ -254,26 +329,27 @@
     }
 
     .mode.primary .ico {
-      background: rgba(139, 92, 246, 0.1);
+      background: rgba(217,127,140,0.15);
       color: var(--primary);
     }
 
     .mode.violet .ico {
-      background: rgba(167, 139, 250, 0.1);
+      background: rgba(139,92,246,0.15);
       color: var(--violet);
     }
 
     .mode.secondary .ico {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(235,203,139,0.15);
       color: var(--secondary);
     }
 
     .mode.olive .ico {
-      background: rgba(132, 204, 22, 0.1);
+      background: rgba(187,211,138,0.15);
       color: var(--olive);
     }
 
     .mode h3 {
+      font-family: 'Fredoka', sans-serif;
       font-size: 1rem;
       margin: 0;
       font-weight: 600;
@@ -300,10 +376,10 @@
 
     .sel, select, input {
       padding: 0.75rem;
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      background: var(--bg-light);
-      color: var(--text-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg);
+      color: var(--ink);
       font-family: 'Poppins', sans-serif;
       font-size: 0.875rem;
     }
@@ -311,16 +387,16 @@
     html[data-theme="dark"] .sel,
     html[data-theme="dark"] select,
     html[data-theme="dark"] input {
-      background: var(--bg-dark);
-      border-color: var(--border-dark);
-      color: var(--text-dark);
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--ink);
     }
 
     /* Buttons */
     .btn {
-      padding: 0.75rem 1.5rem;
+      padding: 10px 14px;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -329,24 +405,26 @@
     }
 
     .btn-primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
     }
 
     .btn-primary:hover {
-      background: #7C3AED;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      box-shadow: 0 18px 40px rgba(217,127,140,0.3);
     }
 
-    .btn-secondary {
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
+    .btn-secondary, .btn.ghost {
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
     }
 
-    .btn-secondary:hover {
-      background: rgba(139, 92, 246, 0.1);
+    .btn-secondary:hover, .btn.ghost:hover {
+      background: rgba(217,127,140,0.1);
+      border-color: var(--primary);
     }
 
     .btn-success {
@@ -377,7 +455,7 @@
       border-radius: 12px;
       font-size: 0.75rem;
       font-weight: 500;
-      background: rgba(139, 92, 246, 0.1);
+      background: rgba(217,127,140,0.1);
       color: var(--primary);
     }
 
@@ -386,8 +464,8 @@
       line-height: 1.6;
       margin-bottom: 1.5rem;
       padding: 1rem;
-      background: rgba(139, 92, 246, 0.05);
-      border-radius: 8px;
+      background: rgba(217,127,140,0.05);
+      border-radius: var(--radius-md);
     }
 
     .opts {
@@ -398,8 +476,8 @@
 
     .opt {
       padding: 1rem;
-      border: 2px solid var(--border-light);
-      border-radius: 8px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -408,17 +486,17 @@
     }
 
     html[data-theme="dark"] .opt {
-      border-color: var(--border-dark);
+      border-color: var(--border);
     }
 
     .opt:hover {
       border-color: var(--primary);
-      background: rgba(139, 92, 246, 0.05);
+      background: rgba(217,127,140,0.05);
     }
 
     .opt.selected {
       border-color: var(--primary);
-      background: rgba(139, 92, 246, 0.1);
+      background: rgba(217,127,140,0.1);
     }
 
     .opt.correct {
@@ -427,8 +505,8 @@
     }
 
     .opt.incorrect {
-      border-color: var(--error);
-      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+      background: rgba(239,68,68,0.1);
     }
 
     .opt-label {
@@ -440,7 +518,7 @@
     .feedback {
       margin-top: 1.5rem;
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       animation: slideIn 0.3s ease;
     }
 
@@ -461,8 +539,8 @@
     }
 
     .feedback.incorrect {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid var(--error);
+      background: rgba(239,68,68,0.1);
+      border: 1px solid var(--danger);
     }
 
     .feedback h3 {
@@ -477,7 +555,7 @@
     }
 
     .feedback.incorrect h3 {
-      color: var(--error);
+      color: var(--danger);
     }
 
     /* Score */
@@ -501,7 +579,7 @@
     }
 
     .score-item.incorrect {
-      color: var(--error);
+      color: var(--danger);
     }
 
     /* Exam */
@@ -531,16 +609,16 @@
 
     .exam-instructions {
       text-align: left;
-      background: var(--card-light);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
       padding: 1.5rem;
       margin-bottom: 2rem;
     }
 
     html[data-theme="dark"] .exam-instructions {
-      background: var(--card-dark);
-      border-color: var(--border-dark);
+      background: rgba(31,41,55,0.92);
+      border-color: var(--border);
     }
 
     .exam-instructions h3 {
@@ -561,14 +639,14 @@
     .progress {
       width: 100%;
       height: 8px;
-      background: var(--border-light);
+      background: var(--border);
       border-radius: 4px;
       overflow: hidden;
       margin-bottom: 1rem;
     }
 
     html[data-theme="dark"] .progress {
-      background: var(--border-dark);
+      background: var(--border);
     }
 
     .progress-bar {
@@ -589,7 +667,7 @@
     }
 
     .timer.warning {
-      color: var(--error);
+      color: var(--danger);
       animation: pulse 1s infinite;
     }
 
@@ -634,15 +712,15 @@
     }
 
     .stat-card {
-      background: var(--card-light);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
       padding: 1.5rem;
     }
 
     html[data-theme="dark"] .stat-card {
-      background: var(--card-dark);
-      border-color: var(--border-dark);
+      background: rgba(31,41,55,0.92);
+      border-color: var(--border);
     }
 
     .stat-card .value {
@@ -656,7 +734,7 @@
     }
 
     .stat-card.incorrect .value {
-      color: var(--error);
+      color: var(--danger);
     }
 
     .stat-card .label {
@@ -666,8 +744,10 @@
 
     /* Right Panel */
     .right-panel {
-      background: var(--card-light);
-      border-left: 1px solid var(--border-light);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-left: 1px solid var(--border);
       padding: 1.5rem 1rem;
       position: sticky;
       top: 0;
@@ -676,8 +756,8 @@
     }
 
     html[data-theme="dark"] .right-panel {
-      background: var(--card-dark);
-      border-left-color: var(--border-dark);
+      background: rgba(31,41,55,0.85);
+      border-left-color: var(--border);
     }
 
     .theme-toggle {
@@ -686,20 +766,20 @@
       justify-content: center;
       gap: 0.5rem;
       padding: 0.75rem;
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       cursor: pointer;
       margin-bottom: 1.5rem;
       transition: all 0.2s ease;
     }
 
     html[data-theme="dark"] .theme-toggle {
-      border-color: var(--border-dark);
+      border-color: var(--border);
     }
 
     .theme-toggle:hover {
       border-color: var(--primary);
-      background: rgba(139, 92, 246, 0.05);
+      background: rgba(217,127,140,0.05);
     }
 
     .stats-grid {
@@ -709,13 +789,13 @@
     }
 
     .stat-item {
-      background: var(--bg-light);
+      background: var(--bg);
       padding: 1rem;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
     }
 
     html[data-theme="dark"] .stat-item {
-      background: var(--bg-dark);
+      background: var(--bg);
     }
 
     .stat-item h4 {
@@ -737,6 +817,87 @@
     .chart-container h3 {
       font-size: 1rem;
       margin-bottom: 1rem;
+    }
+
+    /* Home View Styles */
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .home-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .route-path {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: center;
+      padding: 2rem 0;
+    }
+
+    .node {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: white;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .node.done {
+      background: var(--olive);
+      box-shadow: 0 10px 0 rgba(187,211,138,0.55);
+    }
+
+    .node.current {
+      background: var(--primary);
+      box-shadow: 0 10px 0 rgba(217,127,140,0.55);
+      animation: bounce 2.2s infinite;
+    }
+
+    .node.locked {
+      background: var(--muted);
+      box-shadow: 0 10px 0 rgba(107,114,128,0.35);
+      opacity: 0.6;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .node-label {
+      text-align: center;
+      font-weight: 600;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .node-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .connector {
+      width: 3px;
+      height: 40px;
+      background: var(--border);
+      margin: 0.5rem 0;
     }
 
     /* Utilities */
@@ -761,13 +922,16 @@
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="logo">entrENARMe</div>
+      <div class="logo">
+        entrENARMe
+        <span class="badge">MVP</span>
+      </div>
       <nav>
-        <a class="nav-item" onclick="showView('dashboard')">
+        <a class="nav-item active" onclick="showView('home')">
           <i class="ph ph-house"></i>
-          <span>Dashboard</span>
+          <span>Inicio</span>
         </a>
-        <a class="nav-item active" onclick="showView('practice')">
+        <a class="nav-item" onclick="showView('practice')">
           <i class="ph ph-brain"></i>
           <span>Entrenar</span>
         </a>
@@ -775,21 +939,119 @@
           <i class="ph ph-exam"></i>
           <span>Simulacro</span>
         </a>
-        <a class="nav-item" onclick="showView('progress')">
+        <a class="nav-item" onclick="showView('errors')">
+          <i class="ph ph-x-circle"></i>
+          <span>Errores</span>
+        </a>
+        <a class="nav-item" onclick="showView('plan')">
+          <i class="ph ph-calendar"></i>
+          <span>Plan semanal</span>
+        </a>
+        <a class="nav-item" onclick="showView('oral')">
+          <i class="ph ph-microphone"></i>
+          <span>Simulación oral</span>
+        </a>
+        <a class="nav-item" onclick="showView('tutor')">
+          <i class="ph ph-robot"></i>
+          <span>Tutor IA</span>
+        </a>
+        <a class="nav-item" onclick="showView('analytics')">
           <i class="ph ph-chart-line"></i>
-          <span>Progreso</span>
+          <span>Analytics</span>
         </a>
         <a class="nav-item" onclick="showView('settings')">
           <i class="ph ph-gear"></i>
-          <span>Configuración</span>
+          <span>Ajustes</span>
         </a>
       </nav>
+      <div class="sidebar-footer">
+        <div class="mvp-text">MVP listo para demo</div>
+        <button class="btn-logout" onclick="logout()">
+          <i class="ph ph-sign-out"></i>
+          Cerrar sesión
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Home View -->
+      <div id="home-view">
+        <div class="topbar">
+          <h1>Inicio</h1>
+          <div class="pills">
+            <span class="pill"><i class="ph ph-flame"></i> Racha 7</span>
+            <span class="pill"><i class="ph ph-star"></i> XP 1,250</span>
+            <span class="pill"><i class="ph ph-coin"></i> Monedas 340</span>
+          </div>
+        </div>
+
+        <div class="home-grid">
+          <!-- Ruta ENARM Card -->
+          <div class="card">
+            <h2>Ruta ENARM</h2>
+            <div class="route-path">
+              <div class="node-wrapper">
+                <div class="node done">
+                  <i class="ph-fill ph-check-circle"></i>
+                </div>
+                <div class="node-label">Inicio</div>
+              </div>
+              <div class="connector"></div>
+              <div class="node-wrapper">
+                <div class="node current">
+                  <i class="ph-fill ph-heart-straight"></i>
+                </div>
+                <div class="node-label">Cardio</div>
+              </div>
+              <div class="connector"></div>
+              <div class="node-wrapper">
+                <div class="node locked">
+                  <i class="ph-fill ph-lock"></i>
+                </div>
+                <div class="node-label">Respiratorio</div>
+              </div>
+              <div class="connector"></div>
+              <div class="node-wrapper">
+                <div class="node locked">
+                  <i class="ph-fill ph-lock"></i>
+                </div>
+                <div class="node-label">Urgencias</div>
+              </div>
+              <div class="connector"></div>
+              <div class="node-wrapper">
+                <div class="node locked">
+                  <i class="ph-fill ph-lock"></i>
+                </div>
+                <div class="node-label">Pediatría</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Objetivo del MVP Card -->
+          <div class="card">
+            <h2>Objetivo del MVP</h2>
+            <p style="line-height: 1.8; color: var(--muted);">
+              Demostrar las funcionalidades core de entrENARMe:
+            </p>
+            <ul style="line-height: 2; margin-top: 1rem;">
+              <li>✅ Sistema de práctica con feedback inmediato</li>
+              <li>✅ Simulacros cronometrados ENARM</li>
+              <li>✅ Tracking de racha, XP y monedas</li>
+              <li>✅ 4 modos de entrenamiento diferentes</li>
+              <li>✅ Analytics y estadísticas</li>
+              <li>✅ Dashboard interactivo</li>
+            </ul>
+            <p style="margin-top: 1.5rem; padding: 1rem; background: rgba(217,127,140,0.1); border-radius: var(--radius-md); font-weight: 500;">
+              <i class="ph ph-lightbulb" style="color: var(--secondary);"></i>
+              Próximo paso: Implementar tutor IA y simulación oral
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Practice View -->
-      <div id="practice-view">
+      <div id="practice-view" class="hidden">
         <div class="topbar">
           <h1>Entrenar</h1>
           <div class="pills">
@@ -981,33 +1243,63 @@
       </div>
 
       <!-- Placeholder views -->
-      <div id="dashboard-view" class="hidden">
+      <div id="errors-view" class="hidden">
         <div class="topbar">
-          <h1>Dashboard</h1>
+          <h1>Errores</h1>
         </div>
         <div class="card">
-          <h2>Bienvenido a entrENARMe</h2>
-          <p>Selecciona una opción del menú para comenzar.</p>
+          <h2>Historial de errores</h2>
+          <p>Aquí podrás revisar las preguntas que has contestado incorrectamente.</p>
         </div>
       </div>
 
-      <div id="progress-view" class="hidden">
+      <div id="plan-view" class="hidden">
         <div class="topbar">
-          <h1>Progreso</h1>
+          <h1>Plan semanal</h1>
         </div>
         <div class="card">
-          <h2>Tu progreso</h2>
-          <p>Vista en construcción.</p>
+          <h2>Tu plan de estudio</h2>
+          <p>Organiza tu preparación para el ENARM semana a semana.</p>
+        </div>
+      </div>
+
+      <div id="oral-view" class="hidden">
+        <div class="topbar">
+          <h1>Simulación oral</h1>
+        </div>
+        <div class="card">
+          <h2>Examen oral simulado</h2>
+          <p>Practica tus habilidades de comunicación para el examen oral.</p>
+        </div>
+      </div>
+
+      <div id="tutor-view" class="hidden">
+        <div class="topbar">
+          <h1>Tutor IA</h1>
+        </div>
+        <div class="card">
+          <h2>Asistente inteligente</h2>
+          <p>Pregunta cualquier duda sobre medicina y prepárate mejor.</p>
+        </div>
+      </div>
+
+      <div id="analytics-view" class="hidden">
+        <div class="topbar">
+          <h1>Analytics</h1>
+        </div>
+        <div class="card">
+          <h2>Análisis de desempeño</h2>
+          <p>Visualiza tu progreso y áreas de oportunidad.</p>
         </div>
       </div>
 
       <div id="settings-view" class="hidden">
         <div class="topbar">
-          <h1>Configuración</h1>
+          <h1>Ajustes</h1>
         </div>
         <div class="card">
-          <h2>Ajustes</h2>
-          <p>Vista en construcción.</p>
+          <h2>Configuración</h2>
+          <p>Personaliza tu experiencia en entrENARMe.</p>
         </div>
       </div>
     </main>
@@ -1019,24 +1311,49 @@
         <span id="theme-text">Modo oscuro</span>
       </div>
 
+      <!-- Stat Cards -->
       <div class="stats-grid">
         <div class="stat-item">
-          <h4>Racha actual</h4>
-          <div class="value">7 días</div>
+          <h4><i class="ph ph-flame"></i> Racha actual</h4>
+          <div class="value" style="color: var(--secondary);">7 días</div>
         </div>
         <div class="stat-item">
-          <h4>Preguntas resueltas</h4>
-          <div class="value">142</div>
+          <h4><i class="ph ph-star"></i> XP total</h4>
+          <div class="value" style="color: var(--primary);">1,250</div>
         </div>
         <div class="stat-item">
-          <h4>Precisión</h4>
-          <div class="value">78%</div>
+          <h4><i class="ph ph-coin"></i> Monedas</h4>
+          <div class="value" style="color: var(--olive);">340</div>
         </div>
       </div>
 
+      <!-- Asistente Card -->
+      <div class="card" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="font-family: 'Fredoka', sans-serif; font-size: 1rem; margin: 0 0 0.75rem 0;">
+          <i class="ph ph-robot"></i> Asistente EntrENARMe
+        </h3>
+        <p style="font-size: 0.875rem; color: var(--muted); line-height: 1.6; margin: 0;">
+          ¿Necesitas ayuda? El tutor IA puede resolver tus dudas sobre medicina.
+        </p>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="showView('tutor')">
+          Abrir tutor
+        </button>
+      </div>
+
+      <!-- Mini Dashboard with Chart -->
       <div class="chart-container">
-        <h3>Rendimiento semanal</h3>
+        <h3 style="font-family: 'Fredoka', sans-serif;">Rendimiento semanal</h3>
         <canvas id="performance-chart"></canvas>
+      </div>
+
+      <!-- Vista Coordinador Card -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3 style="font-family: 'Fredoka', sans-serif; font-size: 1rem; margin: 0 0 0.75rem 0;">
+          <i class="ph ph-user-circle"></i> Vista coordinador
+        </h3>
+        <p style="font-size: 0.875rem; color: var(--muted); margin: 0;">
+          Acceso administrativo para gestionar contenido y usuarios.
+        </p>
       </div>
     </aside>
   </div>
@@ -1150,7 +1467,7 @@
 
     // View navigation
     function showView(view) {
-      const views = ['practice', 'exam', 'dashboard', 'progress', 'settings'];
+      const views = ['home', 'practice', 'exam', 'errors', 'plan', 'oral', 'tutor', 'analytics', 'settings'];
       views.forEach(v => {
         const el = document.getElementById(v + '-view');
         if (el) el.classList.add('hidden');
@@ -1164,6 +1481,14 @@
         item.classList.remove('active');
       });
       event?.target?.closest('.nav-item')?.classList.add('active');
+    }
+
+    // Logout function
+    function logout() {
+      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+        alert('Cerrando sesión...');
+        // In a real app, this would redirect to login page
+      }
     }
 
     // Practice mode
@@ -1465,8 +1790,8 @@
           datasets: [{
             label: 'Precisión %',
             data: [65, 72, 68, 75, 78, 80, 78],
-            borderColor: '#8B5CF6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            borderColor: '#D97F8C',
+            backgroundColor: 'rgba(217,127,140,0.1)',
             tension: 0.4,
             fill: true
           }]
