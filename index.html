@@ -1819,7 +1819,14 @@
 
       // Update navigation buttons
       document.getElementById('exam-back-btn').disabled = examState.currentQuestionIndex === 0;
-      document.getElementById('exam-next-btn').disabled = examState.currentQuestionIndex === examState.questions.length - 1;
+      
+      // Hide Next button on last question
+      const nextBtn = document.getElementById('exam-next-btn');
+      if (examState.currentQuestionIndex === examState.questions.length - 1) {
+        nextBtn.classList.add('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+      }
     }
 
     function selectExamAnswer(index) {
