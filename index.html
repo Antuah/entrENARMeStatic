@@ -235,17 +235,37 @@
 
     .topbar {
       display: flex;
+      align-items: flex-end;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
+      gap: 12px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
-      gap: 1rem;
     }
 
     .topbar h1 {
       font-family: 'Fredoka', sans-serif;
       font-size: 2rem;
       margin: 0;
+    }
+
+    .title h2 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+      margin: 0;
+    }
+
+    .title p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+      margin-bottom: 0;
+    }
+
+    .pillrow {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .pills {
@@ -255,23 +275,25 @@
     }
 
     .pill {
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 0.875rem;
-      font-weight: 500;
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.75);
-      color: var(--ink);
+      padding: 8px 10px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      box-shadow: 0 8px 18px rgba(17,24,39,0.04);
     }
 
     /* Card */
     .card {
-      background: rgba(255,255,255,0.92);
       border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
+      background: rgba(255,255,255,0.92);
+      border-radius: 26px;
+      box-shadow: 0 18px 50px rgba(17,24,39,0.08);
       padding: 16px;
       margin-bottom: 1.5rem;
-      box-shadow: var(--shadow);
     }
 
     html[data-theme="dark"] .card {
@@ -284,6 +306,26 @@
       font-size: 1.25rem;
       margin: 0 0 1rem 0;
       font-weight: 600;
+    }
+
+    .card h3 {
+      font-family: Fredoka, Poppins, sans-serif;
+      font-size: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h3 i {
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .card .description {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
     }
 
     /* Training Modes */
@@ -394,14 +436,20 @@
 
     /* Buttons */
     .btn {
+      border: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
       padding: 10px 14px;
-      border: none;
-      border-radius: var(--radius-md);
-      font-weight: 600;
+      border-radius: 14px;
       cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 14px 30px rgba(217,127,140,0.22);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Poppins, sans-serif;
+      font-size: 14px;
       transition: all 0.2s ease;
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.875rem;
     }
 
     .btn-primary {
@@ -415,14 +463,21 @@
       box-shadow: 0 18px 40px rgba(217,127,140,0.3);
     }
 
-    .btn-secondary, .btn.ghost {
+    .btn.ghost {
       background: rgba(255,255,255,0.85);
       color: var(--ink);
       border: 1px solid var(--border);
       box-shadow: none;
     }
 
-    .btn-secondary:hover, .btn.ghost:hover {
+    .btn-secondary, .btn.ghost:hover {
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .btn.ghost:hover {
       background: rgba(217,127,140,0.1);
       border-color: var(--primary);
     }
@@ -436,6 +491,10 @@
       display: flex;
       gap: 1rem;
       margin-top: 1.5rem;
+    }
+
+    .btn-actions .btn {
+      flex: 1;
     }
 
     /* Question Box */
@@ -820,6 +879,19 @@
     }
 
     /* Home View Styles */
+    .grid {
+      display: grid;
+      grid-template-columns: 2.3fr 1.4fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .home-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -831,6 +903,15 @@
       .home-grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* Ruta ENARM - Nodos */
+    .route {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin: 14px 0;
     }
 
     .route-path {
@@ -845,39 +926,62 @@
       width: 75px;
       height: 75px;
       border-radius: 50%;
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1.75rem;
+      font-size: 30px;
+      font-weight: 700;
+      transition: 0.22s ease;
       color: white;
       position: relative;
-      transition: all 0.3s ease;
+    }
+
+    .node i {
+      font-size: 30px;
+      margin: 0;
     }
 
     .node.done {
       background: var(--olive);
       box-shadow: 0 10px 0 rgba(187,211,138,0.55);
+      color: white;
     }
 
     .node.current {
       background: var(--primary);
       box-shadow: 0 10px 0 rgba(217,127,140,0.55);
+      color: white;
       animation: bounce 2.2s infinite;
     }
 
     .node.locked {
-      background: var(--muted);
-      box-shadow: 0 10px 0 rgba(107,114,128,0.35);
-      opacity: 0.6;
+      background: #E5E7EB;
+      color: #9CA3AF;
+      box-shadow: 0 10px 0 #D1D5DB;
+      cursor: not-allowed;
+    }
+
+    .node .lbl {
+      margin-top: 2px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .line {
+      width: 4px;
+      height: 28px;
+      background: #E5E7EB;
+      margin-top: -6px;
+      margin-bottom: -6px;
     }
 
     @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
 
     .node-label {
@@ -898,6 +1002,43 @@
       height: 40px;
       background: var(--border);
       margin: 0.5rem 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.6);
+      padding: 12px;
+      border-radius: 14px;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .box p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .help {
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(235,203,139,0.1);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 12px;
+      line-height: 1.5;
     }
 
     /* Utilities */
@@ -978,74 +1119,80 @@
       <!-- Home View -->
       <div id="home-view">
         <div class="topbar">
-          <h1>Inicio</h1>
-          <div class="pills">
-            <span class="pill"><i class="ph ph-flame"></i> Racha 7</span>
-            <span class="pill"><i class="ph ph-star"></i> XP 1,250</span>
-            <span class="pill"><i class="ph ph-coin"></i> Monedas 340</span>
+          <div class="title">
+            <h2>Inicio</h2>
+            <p>Entrenador para 5.º, 6.º e internado · simulacros tipo ENARM + feedback.</p>
+          </div>
+          <div class="pillrow">
+            <div class="pill"><i class="ph-fill ph-fire" style="color: var(--secondary);"></i> Racha <strong>7</strong></div>
+            <div class="pill"><i class="ph-fill ph-lightning" style="color: var(--primary);"></i> XP <strong>1,250</strong></div>
+            <div class="pill"><i class="ph-fill ph-coin" style="color: var(--secondary);"></i> Monedas <strong>340</strong></div>
           </div>
         </div>
 
-        <div class="home-grid">
-          <!-- Ruta ENARM Card -->
+        <div class="grid">
+          <!-- Card 1 - Ruta ENARM -->
           <div class="card">
-            <h2>Ruta ENARM</h2>
-            <div class="route-path">
-              <div class="node-wrapper">
-                <div class="node done">
-                  <i class="ph-fill ph-check-circle"></i>
-                </div>
-                <div class="node-label">Inicio</div>
+            <h3><i class="ph-fill ph-map-trifold"></i> Ruta ENARM (MVP)</h3>
+            <p class="description">Nodos por sistema: desbloqueas sets de preguntas y mini-simulacros.</p>
+            
+            <div class="route">
+              <div class="node done" onclick="alert('Nodo Inicio completado!')">
+                <i class="ph-fill ph-check"></i>
+                <div class="lbl">Inicio</div>
               </div>
-              <div class="connector"></div>
-              <div class="node-wrapper">
-                <div class="node current">
-                  <i class="ph-fill ph-heart-straight"></i>
-                </div>
-                <div class="node-label">Cardio</div>
+              <div class="line"></div>
+              
+              <div class="node current" onclick="alert('Nodo Cardio actual!')">
+                <i class="ph-fill ph-heartbeat"></i>
+                <div class="lbl">Cardio</div>
               </div>
-              <div class="connector"></div>
-              <div class="node-wrapper">
-                <div class="node locked">
-                  <i class="ph-fill ph-lock"></i>
-                </div>
-                <div class="node-label">Respiratorio</div>
+              <div class="line"></div>
+              
+              <div class="node locked">
+                <i class="ph-fill ph-wind"></i>
+                <div class="lbl">Respi</div>
               </div>
-              <div class="connector"></div>
-              <div class="node-wrapper">
-                <div class="node locked">
-                  <i class="ph-fill ph-lock"></i>
-                </div>
-                <div class="node-label">Urgencias</div>
+              <div class="line"></div>
+              
+              <div class="node locked">
+                <i class="ph-fill ph-first-aid"></i>
+                <div class="lbl">Urgencias</div>
               </div>
-              <div class="connector"></div>
-              <div class="node-wrapper">
-                <div class="node locked">
-                  <i class="ph-fill ph-lock"></i>
-                </div>
-                <div class="node-label">Pediatría</div>
+              <div class="line"></div>
+              
+              <div class="node locked">
+                <i class="ph-fill ph-baby"></i>
+                <div class="lbl">Pediatría</div>
               </div>
             </div>
+
+            <div class="two-col" style="margin-top: 20px;">
+              <button class="btn" onclick="showView('practice')"><i class="ph-fill ph-lightning"></i> Práctica rápida</button>
+              <button class="btn ghost" onclick="showView('exam')"><i class="ph ph-exam"></i> Simulacro demo</button>
+            </div>
+            <button class="btn ghost" style="width: 100%; margin-top: 10px;" onclick="showView('errors')"><i class="ph ph-x-circle"></i> Revisar errores</button>
           </div>
 
-          <!-- Objetivo del MVP Card -->
+          <!-- Card 2 - Objetivo del MVP -->
           <div class="card">
-            <h2>Objetivo del MVP</h2>
-            <p style="line-height: 1.8; color: var(--muted);">
-              Demostrar las funcionalidades core de entrENARMe:
-            </p>
-            <ul style="line-height: 2; margin-top: 1rem;">
-              <li>✅ Sistema de práctica con feedback inmediato</li>
-              <li>✅ Simulacros cronometrados ENARM</li>
-              <li>✅ Tracking de racha, XP y monedas</li>
-              <li>✅ 4 modos de entrenamiento diferentes</li>
-              <li>✅ Analytics y estadísticas</li>
-              <li>✅ Dashboard interactivo</li>
-            </ul>
-            <p style="margin-top: 1.5rem; padding: 1rem; background: rgba(217,127,140,0.1); border-radius: var(--radius-md); font-weight: 500;">
-              <i class="ph ph-lightbulb" style="color: var(--secondary);"></i>
-              Próximo paso: Implementar tutor IA y simulación oral
-            </p>
+            <h3><i class="ph-fill ph-stethoscope"></i> Objetivo del MVP</h3>
+            <p class="description">Acompañar a estudiantes de 5.º–internado para subir % de aciertos en simulacros.</p>
+            
+            <div class="two-col">
+              <div class="box">
+                <strong>Alumno</strong>
+                <p>Practicar por bloques, ver errores, plan semanal sencillo.</p>
+              </div>
+              <div class="box">
+                <strong>Coordinador</strong>
+                <p>Analytics por cohorte y sistemas (vista demo).</p>
+              </div>
+            </div>
+
+            <div class="help">
+              Este demo usa datos fake, pero la experiencia y el flujo ya están listos para conectar banco real + IA.
+            </div>
           </div>
         </div>
       </div>
